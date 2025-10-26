@@ -1,14 +1,16 @@
-import { useCallback, useMemo } from 'react'
-import useSWRInfinite from 'swr/infinite'
-import { KeyedMutator } from 'swr'
+import { ApiV3PoolInfoItem, PoolFetchType, PoolsApiReturn } from '@raydium-io/raydium-sdk-v2'
 import { AxiosResponse } from 'axios'
-import axios from '@/api/axios'
+import { useCallback, useMemo } from 'react'
+import { KeyedMutator } from 'swr'
+import useSWRInfinite, { SWRInfiniteKeyedMutator } from 'swr/infinite'
 import shallow from 'zustand/shallow'
-import { PoolsApiReturn, ApiV3PoolInfoItem, PoolFetchType } from '@raydium-io/raydium-sdk-v2'
+
+import axios from '@/api/axios'
 import { useAppStore } from '@/store'
 import { MINUTE_MILLISECONDS } from '@/utils/date'
-import { formatPoolData, formatAprData } from './formatter'
-import { ReturnPoolType, ReturnFormattedPoolType } from './type'
+
+import { formatAprData, formatPoolData } from './formatter'
+import { ReturnFormattedPoolType, ReturnPoolType } from './type'
 
 let refreshTag = Date.now()
 export const refreshPoolCache = () => (refreshTag = Date.now())
@@ -32,7 +34,7 @@ export default function useFetchPoolList<T extends PoolFetchType>(props?: {
   setSize: (size: number | ((_size: number) => number)) => Promise<AxiosResponse<PoolsApiReturn, any>[] | undefined>
   size: number
   loadMore: () => void
-  mutate: KeyedMutator<AxiosResponse<PoolsApiReturn, any>[]>
+  mutate: SWRInfiniteKeyedMutator<AxiosResponse<PoolsApiReturn, any>[]>
   isValidating: boolean
   isLoading: boolean
   isEmpty: boolean

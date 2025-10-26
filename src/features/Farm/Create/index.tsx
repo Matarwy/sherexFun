@@ -58,7 +58,7 @@ export default function CreateFarm() {
   const currentStepIndex = useMemo(() => MODE_TO_STEP[currentStep], [currentStep])
   const stepsRef = useRef<StepsRef>(null)
   const defaultPoolRef = useRef<string | undefined>(query.ammId)
-  const owner = useAppStore((s) => s.publicKey)
+  const owner = useAppStore((s) => s.publicKey ?? undefined)
 
   // -------- step 1 --------
   const [selectedPoolType, setSelectedPoolType] = useState<CreateFarmType>('Concentrated')
@@ -73,9 +73,7 @@ export default function CreateFarm() {
   const { isOpen: isErrorModalOpen, onOpen: onOpenErrorModal, onClose: onCloseErrorModal } = useDisclosure()
 
   // data fetching
-  const { data: poolList } = useCreatedFarmInfo({
-    owner
-  })
+  const { data: poolList } = useCreatedFarmInfo({ owner })
   const { formattedData } = useFetchPoolById({
     idList: [defaultPoolRef.current, ...poolList.clmm.map((c) => c.id)]
   })

@@ -1,12 +1,13 @@
-import { useEffect, useMemo, useState, useRef } from 'react'
-import { TokenInfo, RewardType, ApiV3Token } from '@raydium-io/raydium-sdk-v2'
-import * as yup from 'yup'
-import { useFormik } from 'formik'
-import Decimal from 'decimal.js'
+import { ApiV3Token, RewardType, TokenInfo } from '@raydium-io/raydium-sdk-v2'
 import dayjs from 'dayjs'
-import { numTransform, trimTrailZero } from '@/utils/numberish/formatter'
+import Decimal from 'decimal.js'
+import { useFormik } from 'formik'
+import { useEffect, useMemo, useRef, useState } from 'react'
+import * as yup from 'yup'
+
 import { useEvent } from '@/hooks/useEvent'
 import { useAppStore, useTokenAccountStore } from '@/store'
+import { numTransform, trimTrailZero } from '@/utils/numberish/formatter'
 
 export interface FormData {
   daily: string
@@ -60,7 +61,7 @@ export default function useAddReward({
   const onlineCurrentDate = new Date(Date.now() + chainTimeOffset)
   const [tokenSymbol, setTokenSymbol] = useState(symbol)
   const [tokenMint, setTokenMint] = useState(mint)
-  const formRef = useRef<ReturnType<typeof useFormik<FormValue>> | undefined>()
+  const formRef = useRef<ReturnType<typeof useFormik<FormValue>> | undefined>(undefined)
 
   const schema = useMemo(
     () =>

@@ -11,6 +11,10 @@ export const contentWidth = `${CONTENT_WIDTH_PX}px`
  */
 export const appLayoutPaddingInline = ['20px', `max((100vw - ${contentWidth}) / 2, 7%)`]
 
+export const appLayoutPaddingX = appLayoutPaddingInline
+export const revertAppLayoutPaddingInline = ['20px', `max((100vw - ${contentWidth}) / 2, 7%)`]
+export const revertAppLayoutPaddingX = revertAppLayoutPaddingInline
+
 /**
  * Negative inline margin to let full-bleed children extend into the gutters.
  * Example:

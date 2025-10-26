@@ -1,7 +1,10 @@
-import i18n from '@/i18n'
-import { txStatusSubject, multiTxStatusSubject } from './useTxStatus'
-import { ToastStatus, TxCallbackProps } from '@/types/tx'
+import React from 'react'
 import { v4 as uuid } from 'uuid'
+
+import i18n from '@/i18n'
+import { ToastStatus, TxCallbackProps } from '@/types/tx'
+
+import { multiTxStatusSubject, txStatusSubject } from './useTxStatus'
 
 const toastStatusSet = new Set<string>(['success', 'error', 'info'])
 export type ProcessedId = { txId: string; status: ToastStatus }[]
@@ -32,8 +35,8 @@ export const handleMultiTxToast = (
     processedId: ProcessedId
     txLength: number
     meta: {
-      title: string | JSX.Element
-      description: string | JSX.Element
+      title: string | React.JSX.Element
+      description: string | React.JSX.Element
       txHistoryTitle: string
       txHistoryDesc: string
       txValues: Record<string, unknown>
@@ -109,7 +112,7 @@ export default function showMultiToast({
   }[]
   meta: {
     title: string
-    description: JSX.Element
+    description: React.JSX.Element
     txHistoryTitle: string
     txHistoryDesc: string
     txValues: Record<string, unknown>

@@ -1,5 +1,6 @@
-import { areShallowEqual, areShallowShallowEqual } from '@/utils/judges/areEqual'
 import { useEffect, useLayoutEffect, useRef } from 'react'
+
+import { areShallowEqual, areShallowShallowEqual } from '@/utils/judges/areEqual'
 
 /**
  * similiar to React.useEffect, but can record dependence list
@@ -19,7 +20,7 @@ export function useRecordedEffect<T extends readonly any[]>(
   }
 ) {
   const prevValue = useRef<T>([] as unknown as T)
-  const cleanupFn = useRef<(() => void) | void>()
+  const cleanupFn = useRef<(() => void) | void>(undefined)
   const compareFunction = options?.shallowShallow ? areShallowShallowEqual : areShallowEqual
   useEffect(() => {
     if (prevValue.current.length && compareFunction(prevValue.current, dependenceList)) return cleanupFn.current
@@ -39,7 +40,7 @@ export function useRecordedLayoutEffect<T extends readonly any[]>(
   }
 ) {
   const prevValue = useRef<T>([] as unknown as T)
-  const cleanupFn = useRef<(() => void) | void>()
+  const cleanupFn = useRef<(() => void) | void>(undefined)
   const compareFunction = options?.shallowShallow ? areShallowShallowEqual : areShallowEqual
   useLayoutEffect(() => {
     if (prevValue.current.length && compareFunction(prevValue.current, dependenceList)) return cleanupFn.current

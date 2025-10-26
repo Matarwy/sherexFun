@@ -1,20 +1,6 @@
 import {
-  Box,
-  Collapse,
-  Flex,
-  FormControl,
-  FormLabel,
-  Grid,
-  GridItem,
-  HStack,
-  Stack,
-  Switch,
-  Tag,
-  Text,
-  useBreakpointValue,
-  useOutsideClick,
-  useDisclosure,
-  useUpdateEffect
+  Box, Collapse, Flex, FormControl, FormLabel, Grid, GridItem, HStack, Stack, Switch, Tag, Text, useBreakpointValue, useDisclosure,
+  useOutsideClick, useUpdateEffect
 } from '@chakra-ui/react'
 import { ApiV3Token, FetchPoolParams, PoolFetchType } from '@raydium-io/raydium-sdk-v2'
 import { ChangeEvent, useCallback, useEffect, useMemo, useRef, useState } from 'react'
@@ -36,19 +22,24 @@ import useFetchPoolList from '@/hooks/pool/useFetchPoolList'
 import { useEvent } from '@/hooks/useEvent'
 import usePrevious from '@/hooks/usePrevious'
 import useSort from '@/hooks/useSort'
+import i18n from '@/i18n'
 import GridIcon from '@/icons/misc/GridIcon'
 import ListIcon from '@/icons/misc/ListIcon'
-import SearchIcon from '@/icons/misc/SearchIcon'
 import MoreListControllers from '@/icons/misc/MoreListControllers'
 import NotFound from '@/icons/misc/NotFound'
 import OpenBookIcon from '@/icons/misc/OpenBookIcon'
+import SearchIcon from '@/icons/misc/SearchIcon'
 import { useAppStore, useTokenStore } from '@/store'
 import { colors } from '@/theme/cssVariables'
 import { appLayoutPaddingX, revertAppLayoutPaddingX } from '@/theme/detailConfig'
-import { isValidPublicKey } from '@/utils/publicKey'
-import toPercentString from '@/utils/numberish/toPercentString'
 import { formatToRawLocaleStr } from '@/utils/numberish/formatter'
+import toPercentString from '@/utils/numberish/toPercentString'
+import { isValidPublicKey } from '@/utils/publicKey'
+import { setUrlQuery, useRouteQuery } from '@/utils/routeTools'
+import { mintToUrl, urlToMint } from '@/utils/token'
+
 import { useEffectWithUrl, useStateWithUrl } from '../../hooks/useStateWithUrl'
+
 import CreatePoolButton from './components/CreatePoolButton'
 import PoolChartModal from './components/PoolChart'
 import PoolItemLoadingSkeleton from './components/PoolItemLoadingSkeleton'
@@ -57,9 +48,6 @@ import PoolListItem from './components/PoolListItem'
 import TVLInfoPanel, { TVLInfoPanelMobile } from './components/TVLInfoPanel'
 import { useScrollTitleCollapse } from './useScrollTitleCollapse'
 import { getFavoritePoolCache, POOL_SORT_KEY } from './util'
-import i18n from '@/i18n'
-import { setUrlQuery, useRouteQuery } from '@/utils/routeTools'
-import { urlToMint, mintToUrl } from '@/utils/token'
 
 export type PoolPageQuery = {
   token?: string
@@ -246,7 +234,7 @@ export default function Pools() {
   })
 
   // -------- control list --------
-  const listControllerRef = useRef<ListPropController>()
+  const listControllerRef = useRef<ListPropController & HTMLDivElement>(null)
   useEffect(() => {
     listControllerRef.current?.resetRenderCount()
   }, [activeTabItem, currentLayoutStyle, showFarms, timeBase])
@@ -584,8 +572,23 @@ export default function Pools() {
               <PoolItemLoadingSkeleton isGrid={currentLayoutStyle === 'grid'} />
             ) : (
               <List
-                controllerRef={listControllerRef}
-                {...scrollBodyProps}
+                // Merge refs to avoid duplicate ref assignment and type errors
+                ref={useCallback(
+                  (el: HTMLDivElement | null) => {
+                    if (el && typeof scrollBodyProps.ref === 'function') {
+                      scrollBodyProps.ref(el as HTMLElement)
+                    } else if (el && scrollBodyProps.ref && 'current' in scrollBodyProps.ref) {
+                      // @ts-ignore
+                      scrollBodyProps.ref.current = el
+                    }
+                    if (listControllerRef && typeof listControllerRef.current === 'object') {
+                      // @ts-ignore
+                      listControllerRef.current = el
+                    }
+                  },
+                  [scrollBodyProps.ref]
+                )}
+                {...Object.fromEntries(Object.entries(scrollBodyProps).filter(([key]) => key !== 'ref'))}
                 increaseRenderCount={showFarms ? 100 : 50}
                 initRenderCount={30}
                 reachBottomMargin={showFarms ? 200 : 150}

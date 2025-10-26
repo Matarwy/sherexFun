@@ -92,7 +92,7 @@ interface AppState {
   wsNodeUrl?: string
   rpcs: RpcItem[]
   urlConfigs: typeof API_URLS & { SWAP_HOST: string; SWAP_COMPUTE: string; SWAP_TX: string }
-  programIdConfig: { LAUNCHPAD_PROGRAM: PublicKey }
+  programIdConfig: typeof ALL_PROGRAM_ID & { LAUNCHPAD_PROGRAM: PublicKey }
 
   jupTokenType: JupTokenType
   displayTokenSettings: { official: boolean; jup: boolean; userAdded: boolean }

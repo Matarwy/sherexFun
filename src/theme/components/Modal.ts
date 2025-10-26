@@ -111,4 +111,4 @@ export const Modal = defineMultiStyleConfig({
 
 // Optional: keep your app default centered behavior
 // (Chakra doesn't support `isCentered` via style config)
-_Modal.defaultProps = { isCentered: true }
+// To set isCentered by default, pass it explicitly where you use <Modal /> or wrap Modal in a custom component.

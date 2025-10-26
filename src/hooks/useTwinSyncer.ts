@@ -1,6 +1,8 @@
-import { isNullish, isArray, isEmptyObject } from '@/utils/judges/judgeType'
-import { useRecordedEffect } from './useRecordedEffect'
 import { useRef } from 'react'
+
+import { isArray, isEmptyObject, isNullish } from '@/utils/judges/judgeType'
+
+import { useRecordedEffect } from './useRecordedEffect'
 
 /** can't judege which is newer is firstTime, U counld set conflictMasterSide, ('auto' will respect larger one) */
 export default function useTwinSyncer<T, F>({
@@ -31,9 +33,9 @@ export default function useTwinSyncer<T, F>({
   conflictMasterSide?: 'state1' | 'state2'
 }) {
   // collect calced state 2
-  const state1AvoidFlagRef = useRef<F>()
+  const state1AvoidFlagRef = useRef<F>(undefined)
   // collect calced state 1
-  const state2AvoidFlagRef = useRef<T>()
+  const state2AvoidFlagRef = useRef<T>(undefined)
 
   function setState2AvoidFlag(flagState2Value: F) {
     state1AvoidFlagRef.current = flagState2Value

@@ -1,5 +1,7 @@
 import { RefObject, useRef } from 'react'
+
 import { useEvent } from '@/hooks/useEvent'
+
 import { useIsomorphicLayoutEffect } from './useIsomorphicLayoutEffect'
 
 type InterSectionObserverCallback<Item extends HTMLElement> = (utils: { el: Item; entry: IntersectionObserverEntry }) => void
@@ -14,7 +16,7 @@ export function useIntersectionObserver<Item extends HTMLElement>(input: {
   stop(): void
 } {
   const registedCallbacks = useRef(new WeakMap<Item, (utils: { el: Item; entry: IntersectionObserverEntry }) => void>())
-  const intersectionObserverRef = useRef<IntersectionObserver>()
+  const intersectionObserverRef = useRef<IntersectionObserver | null>(null)
   useIsomorphicLayoutEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {

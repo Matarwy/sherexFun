@@ -1,4 +1,5 @@
-import { ComponentProps, Fragment, isValidElement, ReactElement, ReactNode } from 'react'
+import { ComponentProps, Fragment, isValidElement, JSX, ReactElement, ReactNode } from 'react'
+
 import { isArray } from '../judges/judgeType'
 
 type ReactComponent = (...params: any[]) => ReactElement | null
@@ -29,10 +30,9 @@ function findTargetChild(children: ReactNode[], targetComponent: ReactComponent)
 export function pickReactChild<T extends ReactComponent>(
   children: ReactNode,
   targetComponent: T,
-  mapItem: (item: JSX.Element) => JSX.Element = (i) => i
-): ReturnType<T> | undefined {
-  const targetChild = findTargetChild([children].flat().filter(isValidElement), targetComponent)
-  // @ts-expect-error force type
+  mapItem: (item: ReactElement) => ReactElement
+): ReactElement | undefined {
+  const targetChild = findTargetChild([children].flat().filter(isValidElement), targetComponent) as ReactElement | undefined
   return targetChild ? mapItem(targetChild) : undefined
 }
 

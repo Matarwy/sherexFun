@@ -1,6 +1,7 @@
-import { MutableRefObject, RefCallback, RefObject } from 'react'
+import { MutableRefObject, Ref, RefCallback, RefObject } from 'react'
 
 import { createCallbackRef } from '@/hooks/useCallbackRef'
+
 import { isArray, isFunction, isNullish } from '../judges/judgeType'
 
 function loadRef(ref: RefCallback<any> | MutableRefObject<any> | null | undefined, el: any) {
@@ -18,6 +19,15 @@ function loadRef(ref: RefCallback<any> | MutableRefObject<any> | null | undefine
   }
 }
 
-export default function mergeRef<T = any>(...refs: (MutableRefObject<T | null | undefined> | null | undefined)[]): RefObject<any> {
-  return createCallbackRef((el) => refs.forEach((ref) => loadRef(ref, el)))
+export default function mergeRef<T = any>(...refs: (Ref<T> | null | undefined)[]): (instance: T | null) => void {
+  return (el: T | null) => {
+    refs.forEach((ref) => {
+      if (typeof ref === 'function') {
+        ref(el)
+      } else if (ref && typeof ref === 'object') {
+        // @ts-ignore
+        ref.current = el
+      }
+    })
+  }
 }

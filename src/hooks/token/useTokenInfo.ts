@@ -1,10 +1,12 @@
-import { useState, useEffect } from 'react'
 import { TokenInfo } from '@raydium-io/raydium-sdk-v2'
 import { PublicKey } from '@solana/web3.js'
-import { getTokenInfo } from './api'
-import { useTokenStore } from '@/store/useTokenStore'
+import { useEffect, useState } from 'react'
+
 import { useAppStore } from '@/store/useAppStore'
+import { useTokenStore } from '@/store/useTokenStore'
 import { getMintSymbol } from '@/utils/token'
+
+import { getTokenInfo } from './api'
 
 export default function useTokenInfo({
   mint,
@@ -31,7 +33,7 @@ export default function useTokenInfo({
 
     if (!info) {
       setLoading(true)
-      getTokenInfo({ mint, connection, programId }).then((r) => {
+      getTokenInfo({ mint, connection: connection ?? undefined, programId }).then((r) => {
         if (r)
           setTokenInfo({
             ...r,
