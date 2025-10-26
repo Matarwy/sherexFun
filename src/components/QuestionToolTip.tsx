@@ -1,9 +1,11 @@
+import { Box, Text } from '@chakra-ui/react'
+import { ReactNode } from 'react'
+
 import InfoCircleIcon from '@/icons/misc/InfoCircleIcon'
 import QuestionCircleIcon from '@/icons/misc/QuestionCircleIcon'
 import { SvgIcon } from '@/icons/type'
 import { colors } from '@/theme/cssVariables'
-import { Box, Text } from '@chakra-ui/react'
-import { ReactNode } from 'react'
+
 import Tooltip from './Tooltip'
 
 /**
@@ -27,10 +29,8 @@ export function QuestionToolTip(props: {
     >
       <Box cursor={props.label ? 'pointer' : undefined}>
         {props.iconType === 'info' ? (
-          // @ts-expect-error don't why this error
           <InfoCircleIcon style={{ display: 'block' }} {...props.iconProps} />
         ) : (
-          // @ts-expect-error don't why this error
           <QuestionCircleIcon style={{ display: 'block' }} {...props.iconProps} />
         )}
       </Box>

@@ -1,9 +1,11 @@
-import { Badge, Box, useDisclosure } from '@chakra-ui/react'
+import { Badge, Box, Link, useDisclosure } from '@chakra-ui/react'
+import { useWallet } from '@solana/wallet-adapter-react'
 
 import Button from '@/components/Button'
-import { useWallet } from '@solana/wallet-adapter-react'
-import TorqueDrawer from './TorqueDrawer'
+
 import { useTorqueData } from '../hooks/useTorqueData'
+
+import TorqueDrawer from './TorqueDrawer'
 
 export default function TorqueButton() {
   const { wallet } = useWallet()
@@ -12,14 +14,21 @@ export default function TorqueButton() {
 
   return (
     <>
-      <Button variant="ghost" onClick={onOpen} display="flex" alignItems="center" gap={2}>
-        <Box as="span" bgGradient="linear-gradient(245.22deg, #FF2FC8 7.97%, #FFB12B 49.17%, #D3D839 92.1%)" bgClip="text">
+      {/* <Button variant="ghost" onClick={onOpen} display="flex" alignItems="center" gap={2}> */}
+      <Box as="span" bgClip="text">
+        <Link
+          href="https://t.me/sherexcoin"
+          isExternal
+          bgGradient="linear-gradient(245.22deg, #FF2FC8 7.97%, #FFB12B 49.17%, #D3D839 92.1%)"
+          bgClip="text"
+        >
           Rewards
-        </Box>
-        {activeOffersCount > 0 && <Badge variant="crooked">{activeOffersCount}</Badge>}
-      </Button>
+        </Link>
+      </Box>
+      {/* {activeOffersCount > 0 && <Badge variant="crooked">{activeOffersCount}</Badge>} */}
+      {/* </Button> */}
 
-      {isOpen && (
+      {/* {isOpen && (
         <TorqueDrawer
           isOpen={isOpen}
           onClose={onClose}
@@ -28,7 +37,7 @@ export default function TorqueButton() {
           campaignsError={error}
           campaigns={campaigns}
         />
-      )}
+      )} */}
     </>
   )
 }

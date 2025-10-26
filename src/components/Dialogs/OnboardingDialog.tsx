@@ -1,32 +1,16 @@
 import {
-  Checkbox,
-  Stepper,
-  Step,
-  StepIndicator,
-  StepTitle,
-  StepDescription,
-  StepSeparator,
-  Modal,
-  ModalOverlay,
-  ModalContent,
-  ModalCloseButton,
-  ModalBody,
-  ModalFooter,
-  Button,
-  Grid,
-  Text,
-  Flex,
-  useSteps,
-  useColorMode
+  Button, Checkbox, Flex, Grid, Modal, ModalBody, ModalCloseButton, ModalContent, ModalFooter, ModalOverlay, Step, StepDescription,
+  StepIndicator, Stepper, StepSeparator, StepTitle, Text, useColorMode, useSteps
 } from '@chakra-ui/react'
-import { colors } from '@/theme/cssVariables'
-import { useAppStore } from '@/store'
 import { useWalletModal } from '@solana/wallet-adapter-react-ui'
-import { useEvent } from '@/hooks/useEvent'
-import useWalletSign from '@/hooks/birthpad/useWalletSign'
-import { useEffect, useState, useRef } from 'react'
-import { toastSubject } from '@/hooks/toast/useGlobalToast'
+import { useEffect, useRef, useState } from 'react'
 import { Subject } from 'rxjs'
+
+import useWalletSign from '@/hooks/birthpad/useWalletSign'
+import { toastSubject } from '@/hooks/toast/useGlobalToast'
+import { useEvent } from '@/hooks/useEvent'
+import { useAppStore } from '@/store'
+import { colors } from '@/theme/cssVariables'
 
 export const onboardingDialogSubject = new Subject<{ open: boolean; successCbk?: () => void }>()
 
@@ -38,7 +22,7 @@ export const OnboardingDialog = () => {
   const { setVisible } = useWalletModal()
   const { useLedger, signVerifyMessage } = useWalletSign()
   const [isLedger, setIsLedger] = useState(false)
-  const successCbkRef = useRef<(() => void) | undefined>()
+  const successCbkRef = useRef<(() => void) | undefined>(undefined)
 
   const steps = [
     { title: 'Connect Wallet', description: 'Connect Wallet to provide your address' },

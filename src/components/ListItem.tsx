@@ -1,6 +1,8 @@
-import { shrinkToValue } from '@/utils/shrinkToValue'
 import { Box } from '@chakra-ui/react'
 import { ReactNode, useContext, useEffect, useMemo, useRef, useState } from 'react'
+
+import { shrinkToValue } from '@/utils/shrinkToValue'
+
 import { listContext } from './List'
 import VirtualBox from './VirtualBox'
 
@@ -9,7 +11,7 @@ type ListItemStatus = {
 }
 
 export default function ListItem({ children }: { children?: ReactNode | ((status: ListItemStatus) => ReactNode) }) {
-  const itemRef = useRef<HTMLElement>()
+  const itemRef = useRef<HTMLElement | null>(null)
 
   const [isIntersecting, setIsIntersecting] = useState(true)
   const { observeFn } = useContext(listContext) ?? {}

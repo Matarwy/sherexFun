@@ -1,13 +1,14 @@
-import { toastSubject } from '@/hooks/toast/useGlobalToast'
-import Head from 'next/head'
-import { RefObject, useEffect, useImperativeHandle } from 'react'
 import { Box, SystemStyleObject } from '@chakra-ui/react'
+import Head from 'next/head'
+import React, { RefObject, useEffect, useImperativeHandle } from 'react'
+
+import { toastSubject } from '@/hooks/toast/useGlobalToast'
 
 export type ActionRef = { validate: () => string | undefined }
 interface Props {
-  actionRef?: RefObject<ActionRef>
-  sx?: SystemStyleObject
+  actionRef?: React.RefObject<ActionRef | null> // <- allow null
   show?: boolean
+  sx?: any
 }
 
 function activateTurnstile() {

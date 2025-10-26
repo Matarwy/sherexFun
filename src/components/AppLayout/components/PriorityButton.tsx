@@ -1,17 +1,19 @@
-import React, { useRef, useState, useEffect } from 'react'
+import { Button, Flex, Text } from '@chakra-ui/react'
 import { useWallet } from '@solana/wallet-adapter-react'
+import React, { useEffect, useRef, useState } from 'react'
+
 import { useDisclosure } from '@/hooks/useDelayDisclosure'
-import { Flex, Button, Text } from '@chakra-ui/react'
-import { colors } from '@/theme/cssVariables'
-import { useAppStore, FEE_KEY, PriorityLevel, PriorityMode } from '@/store/useAppStore'
 import { useEvent } from '@/hooks/useEvent'
 import useResponsive from '@/hooks/useResponsive'
-import { setStorageItem } from '@/utils/localStorage'
-import { PriorityModalContent } from './PriorityModalContent'
 import PriorityFastIcon from '@/icons/misc/PriorityFastIcon'
+import PriorityFixIcon from '@/icons/misc/PriorityFixIcon'
 import PriorityTurboIcon from '@/icons/misc/PriorityTurboIcon'
 import PriorityUltraIcon from '@/icons/misc/PriorityUltraIcon'
-import PriorityFixIcon from '@/icons/misc/PriorityFixIcon'
+import { FEE_KEY, PriorityLevel, PriorityMode, useAppStore } from '@/store/useAppStore'
+import { colors } from '@/theme/cssVariables'
+import { setStorageItem } from '@/utils/localStorage'
+
+import { PriorityModalContent } from './PriorityModalContent'
 
 export function PriorityButton() {
   const { isOpen, onClose, onOpen } = useDisclosure()
@@ -23,7 +25,7 @@ export function PriorityButton() {
   const priorityMode = useAppStore((s) => s.priorityMode)
   const isExact = priorityMode === PriorityMode.Exact
 
-  const triggerRef = useRef<HTMLDivElement>(null)
+  const triggerRef = useRef<HTMLDivElement>(null!)
   const [currentFee, setCurrentFee] = useState<string | undefined>()
   const feeWarn = Number(currentFee) <= (feeConfig[0] ?? 0)
   const handleChangeFee = useEvent((val?: string) => {

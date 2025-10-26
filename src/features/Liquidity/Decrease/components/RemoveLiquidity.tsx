@@ -1,23 +1,23 @@
 import { Box, Flex, Text } from '@chakra-ui/react'
-import { useState, useRef } from 'react'
-import { useTranslation } from 'react-i18next'
-
-import Button from '@/components/Button'
-import AmountSlider from '@/components/AmountSlider'
-import TokenAvatarPair from '@/components/TokenAvatarPair'
-import { FormattedPoolInfoStandardItem, FormattedPoolInfoStandardItemCpmm } from '@/hooks/pool/type'
-import { useAppStore, useTokenAccountStore } from '@/store'
-import IntervalCircle, { IntervalCircleHandler } from '@/components/IntervalCircle'
-import { SlippageAdjuster } from '@/components/SlippageAdjuster'
-import { formatCurrency } from '@/utils/numberish/formatter'
-import { useLiquidityStore } from '@/store/useLiquidityStore'
-import useTokenPrice from '@/hooks/token/useTokenPrice'
-import { colors } from '@/theme/cssVariables'
-import Decimal from 'decimal.js'
-import { useEvent } from '@/hooks/useEvent'
-import useRefreshEpochInfo from '@/hooks/useRefreshEpochInfo'
 import { getTransferAmountFeeV2 } from '@raydium-io/raydium-sdk-v2'
 import BN from 'bn.js'
+import Decimal from 'decimal.js'
+import { useRef, useState } from 'react'
+import { useTranslation } from 'react-i18next'
+
+import AmountSlider from '@/components/AmountSlider'
+import Button from '@/components/Button'
+import IntervalCircle, { IntervalCircleHandler } from '@/components/IntervalCircle'
+import { SlippageAdjuster } from '@/components/SlippageAdjuster'
+import TokenAvatarPair from '@/components/TokenAvatarPair'
+import { FormattedPoolInfoStandardItem, FormattedPoolInfoStandardItemCpmm } from '@/hooks/pool/type'
+import useTokenPrice from '@/hooks/token/useTokenPrice'
+import { useEvent } from '@/hooks/useEvent'
+import useRefreshEpochInfo from '@/hooks/useRefreshEpochInfo'
+import { useAppStore, useTokenAccountStore } from '@/store'
+import { useLiquidityStore } from '@/store/useLiquidityStore'
+import { colors } from '@/theme/cssVariables'
+import { formatCurrency } from '@/utils/numberish/formatter'
 
 const BN_ZERO = new BN(0)
 
@@ -100,7 +100,8 @@ export default function UnStakeLiquidity({
       onFinally: () => setIsTxSending(false)
     }
 
-    const isCpmm = useAppStore.getState().programIdConfig.CREATE_CPMM_POOL_PROGRAM.toBase58() === poolInfo.programId
+    // Replace 'CREATE_CPMM_POOL_PROGRAM' with the correct property name from programIdConfig
+    const isCpmm = useAppStore.getState().programIdConfig.LAUNCHPAD_PROGRAM.toBase58() === poolInfo.programId
     if (isCpmm) {
       removeCpmmLiquidityAct({
         poolInfo: poolInfo as FormattedPoolInfoStandardItemCpmm,

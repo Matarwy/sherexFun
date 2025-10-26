@@ -1,9 +1,10 @@
-import Steps, { StepsRef } from '@/components/Steps'
-import { useAppStore } from '@/store'
 import { RefObject } from 'react'
 import { useTranslation } from 'react-i18next'
 
-export default function Stepper({ stepRef, onChange }: { stepRef?: RefObject<StepsRef>; onChange: (step: number) => void }) {
+import Steps, { StepsRef } from '@/components/Steps'
+import { useAppStore } from '@/store'
+
+export default function Stepper({ stepRef, onChange }: { stepRef?: RefObject<StepsRef | null>; onChange: (step: number) => void }) {
   const isMobile = useAppStore((s) => s.isMobile)
   const { t } = useTranslation()
   return (

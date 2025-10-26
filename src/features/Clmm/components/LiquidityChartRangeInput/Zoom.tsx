@@ -1,8 +1,9 @@
 import { Flex, SystemCSSProperties } from '@chakra-ui/react'
+import styled from '@emotion/styled'
 import { ScaleLinear, select, zoom, ZoomBehavior, zoomIdentity, ZoomTransform } from 'd3'
 import React, { useEffect, useMemo, useRef } from 'react'
 import { RefreshCcw, ZoomIn, ZoomOut } from 'react-feather'
-import styled from '@emotion/styled'
+
 import { FeeAmount } from './FeeAmount'
 import { ZoomLevels } from './types'
 
@@ -47,7 +48,7 @@ export default function Zoom({
   feeAmount?: FeeAmount
   style?: SystemCSSProperties
 }) {
-  const zoomBehavior = useRef<ZoomBehavior<Element, unknown>>()
+  const zoomBehavior = useRef<ZoomBehavior<Element, unknown>>(null)
 
   const [zoomIn, zoomOut, zoomInitial, zoomReset] = useMemo(
     () => [

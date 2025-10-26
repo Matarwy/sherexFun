@@ -356,7 +356,8 @@ export const useBirthpadStore = createStore<LaunchpadState>((set, get) => ({
     try {
       console.log('calling createAndBuyAct!!...')
       const { raydium, txVersion } = useAppStore.getState()
-      if (!raydium) return { txId: '' }
+      if (!raydium) throw new Error('Raydium client missing in app store')
+      if (!mintKp?.publicKey) throw new Error('mintKp not provided')
 
       if (name.length > 32) {
         toastSubject.next({
@@ -380,18 +381,12 @@ export const useBirthpadStore = createStore<LaunchpadState>((set, get) => ({
       // const pair = Keypair.generate()
       console.log('platformId', get().platformId)
 
-      const configRes: {
-        data: {
-          data: {
-            key: ConfigInfo
-            mintInfoB: ApiV3Token
-          }[]
-        }
-      } = await axios.get(`${mintHost}/main/configs`)
-      console.log('configRes======>', configRes)
+      const configRes = await axios.get(`${mintHost}/main/configs`, { timeout: 8000 })
+      console.log('configRes OK')
+      if (!configRes?.data?.data?.length) throw new Error('Empty /main/configs response')
 
-      const configs = configRes.data.data[0].key
-      const configInfo: ReturnType<typeof LaunchpadConfig.decode> = {
+      const configs: ConfigInfo = configRes.data.data[0].key
+      const decodedConfigInfo: ReturnType<typeof LaunchpadConfig.decode> = {
         index: configs.index,
         mintB: new PublicKey(configs.mintB),
         tradeFeeRate: new BN(configs.tradeFeeRate),
@@ -409,14 +404,12 @@ export const useBirthpadStore = createStore<LaunchpadState>((set, get) => ({
         migrateToAmmWallet: new PublicKey(configs.migrateToAmmWallet),
         migrateToCpmmWallet: new PublicKey(configs.migrateToCpmmWallet)
       }
+      const fetchedConfigId = new PublicKey(configRes.data.data[0].key.pubKey)
+      const fetchedMintBInfo: ApiV3Token = configRes?.data?.data[0]?.mintInfoB
 
-      const configId = new PublicKey(configRes.data.data[0].key.pubKey)
-
-      const mintBInfo = configRes?.data?.data[0]?.mintInfoB
-
-      console.log('configInfo', configInfo)
-      console.log('configId', configId)
-      console.log('mintBInfo', mintBInfo)
+      console.log('decodedConfigInfo', decodedConfigInfo)
+      console.log('fetchedConfigId', fetchedConfigId.toBase58())
+      console.log('fetchedMintBInfo', fetchedMintBInfo)
 
       const newMintData = {
         wallet: raydium.ownerPubKey.toBase58(),
@@ -443,13 +436,13 @@ export const useBirthpadStore = createStore<LaunchpadState>((set, get) => ({
         symbol: symbol,
         uri,
         migrateType: 'amm',
-        configId,
-        configInfo,
+        configId: fetchedConfigId,
+        configInfo: decodedConfigInfo,
         mintBDecimals,
 
         platformId: new PublicKey('FEkF8SrSckk5GkfbmtcCbuuifpTKkw6mrSNowwB8aQe3'),
 
-        txVersion: TxVersion.V0,
+        txVersion: TxVersion.LEGACY,
         slippage: slippage || new BN(100), // Use the passed slippage or default to 1%
         buyAmount: buyAmount, // Use the actual buy amount passed to the function
         createOnly, // true means create mint only, false will "create and buy together"
@@ -464,14 +457,27 @@ export const useBirthpadStore = createStore<LaunchpadState>((set, get) => ({
         extraSigners: [mintKp] // Add the mint keypair as an extra signer
       })
 
-      console.log('extInfo======>', extInfo)
+      console.log('createLaunchpad extInfo OK', extInfo)
       const amountA = extInfo.swapInfo.amountA.amount.toString()
       console.log('amountA======>', amountA)
       const amountB = extInfo.swapInfo.amountB.toString()
       console.log('amountB======>', amountB)
 
-      const transaction = transactions[0]
-      console.log('tx simulation  ', await raydium.connection.simulateTransaction(transaction))
+      // const transaction = transactions[0]
+      // console.log('tx simulation  ', await raydium.connection.simulateTransaction(transaction))
+
+      const transaction = transactions?.[0]
+      if (transaction) {
+        try {
+          const sim = (await Promise.race([
+            raydium.connection.simulateTransaction(transaction),
+            new Promise((_, rej) => setTimeout(() => rej(new Error('simulate timeout')), 5000))
+          ])) as { value: { err: any | null } }
+          console.log('tx simulation OK', sim?.value?.err ?? null)
+        } catch (e) {
+          console.warn('simulation skipped/failed:', e)
+        }
+      }
 
       // Execute the transaction (this will handle signing and sending)
       try {
@@ -483,14 +489,20 @@ export const useBirthpadStore = createStore<LaunchpadState>((set, get) => ({
         }
 
         // Use the execute function which handles signing properly
-        const { signedTxs } = await execute({ notSendToRpc: false, sequentially: true })
-        console.log('signedTxs======>', signedTxs)
+        // const { signedTxs } = await execute({ notSendToRpc: false, sequentially: true })
+        // console.log('signedTxs======>', signedTxs)
 
-        // Send the signed transaction
-        const signature = await raydium.connection.sendTransaction(signedTxs[0])
+        // // Send the signed transaction
+        // const signature = await raydium.connection.sendTransaction(signedTxs[0])
+        // Let SDK sign AND send (don’t manually send again)
+        const { txIds, signedTxs } = await execute({ sequentially: true })
+        const signature = txIds?.[0] ?? null
+        console.log('execute result: txIds', txIds, 'signedTxs len', signedTxs?.length)
         console.log('signature', signature)
 
-        const confirmation = await raydium.connection.confirmTransaction(signature)
+        // const confirmation = await raydium.connection.confirmTransaction(signature)
+        if (!signature) throw new Error('No txId returned from execute()')
+        const confirmation = await raydium.connection.confirmTransaction(signature, 'confirmed')
         console.log('confirmation', confirmation)
 
         // Get the transaction ID from the signature
@@ -520,8 +532,13 @@ export const useBirthpadStore = createStore<LaunchpadState>((set, get) => ({
       }
 
       return { txId: '' }
-    } catch (err) {
-      console.log('er while creating and buying======>', err)
+    } catch (err: any) {
+      console.error('createAndBuyAct failed:', err)
+      toastSubject.next({
+        status: 'error',
+        title: 'Create & Buy Error',
+        description: err?.message ?? 'Unknown error'
+      })
       return { txId: '' }
     }
   },

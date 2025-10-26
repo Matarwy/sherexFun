@@ -1,9 +1,12 @@
+import { FlexProps, forwardRef, Grid } from '@chakra-ui/react'
+import { createContext, ReactNode, useDeferredValue, useEffect, useImperativeHandle, useMemo, useRef, useState } from 'react'
+
 import { useRecordedEffect } from '@/hooks/useRecordedEffect'
 import { useScrollDegreeDetector } from '@/hooks/useScrollDegreeDetector'
 import mergeRef from '@/utils/react/mergeRef'
-import { FlexProps, Grid, forwardRef } from '@chakra-ui/react'
-import { ReactNode, createContext, useDeferredValue, useEffect, useImperativeHandle, useMemo, useRef, useState } from 'react'
+
 import { ObserveFn, useIntersectionObserver } from '../hooks/useIntersectionObserver'
+
 import ListItem from './ListItem'
 
 /**
@@ -17,7 +20,7 @@ type ListProps<T> = {
   /**
    * if ref is already stand as a domRef, there should be another ref for component methods
    */
-  controllerRef?: React.Ref<ListPropController | undefined>
+  controllerRef?: React.Ref<ListPropController | null>
 
   increaseRenderCount?: number
   initRenderCount?: number
@@ -74,7 +77,7 @@ function List<T>(
   const items = useDeferredValue(_items) // ⚡ lazy load to avoid render task aborting critical main thread
   const listRef = useRef<HTMLDivElement>(null)
 
-  const { observe, stop } = useIntersectionObserver({ rootRef: listRef, options: { rootMargin: '80%' } })
+  const { observe, stop } = useIntersectionObserver({ rootRef: listRef as React.RefObject<HTMLElement>, options: { rootMargin: '80%' } })
   const contextValue = useMemo(() => ({ observeFn: observe }), [observe])
 
   useEffect(() => stop, []) // stop observer when destory

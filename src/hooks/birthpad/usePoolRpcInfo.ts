@@ -1,11 +1,5 @@
 import {
-  Curve,
-  getPdaLaunchpadPoolId,
-  getPdaLaunchpadVaultId,
-  LaunchpadConfigInfo,
-  LaunchpadPool,
-  LaunchpadPoolInfo,
-  LaunchpadPoolInitParam
+  Curve, getPdaLaunchpadPoolId, getPdaLaunchpadVaultId, LaunchpadConfigInfo, LaunchpadPool, LaunchpadPoolInfo, LaunchpadPoolInitParam
 } from '@raydium-io/raydium-sdk-v2'
 import { NATIVE_MINT } from '@solana/spl-token'
 import { Connection, PublicKey } from '@solana/web3.js'
@@ -13,13 +7,13 @@ import { BN } from 'bn.js'
 import Decimal from 'decimal.js'
 import { useEffect, useMemo, useState } from 'react'
 import useSWR from 'swr'
-import shallow from 'zustand/shallow'
+import { shallow } from 'zustand/shallow'
 
 import { MintInfo } from '@/features/Birthpad/type'
 import { useAppStore, useBirthpadStore } from '@/store'
 import ToPublicKey from '@/utils/publicKey'
 
-import { ToLaunchpadConfig } from './utils'
+import { ToBirthPadConfig } from './utils'
 
 interface Props {
   poolId?: string
@@ -101,11 +95,13 @@ export default function usePoolRpcInfo({ poolId, mintInfo, refreshInterval = 10 
             startTime: new BN(0),
             totalAllocatedShare: new BN(0)
           },
-          fake: true
+          fake: true,
+          mintProgramFlag: 0,
+          cpmmCreatorFeeOn: 0
         }
 
         setConfigInfo({
-          ...ToLaunchpadConfig(mintInfo.configInfo),
+          ...ToBirthPadConfig(mintInfo.configInfo),
           configId: ToPublicKey(mintInfo.configId)
         })
 
@@ -144,7 +140,7 @@ export default function usePoolRpcInfo({ poolId, mintInfo, refreshInterval = 10 
   useEffect(() => {
     if (mintInfo?.configInfo) {
       setConfigInfo({
-        ...ToLaunchpadConfig(mintInfo.configInfo),
+        ...ToBirthPadConfig(mintInfo.configInfo),
         configId: ToPublicKey(mintInfo.configId)
       })
       return

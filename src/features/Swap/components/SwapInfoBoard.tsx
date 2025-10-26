@@ -1,25 +1,26 @@
+import { Box, Collapse, Flex, HStack, Skeleton, Text } from '@chakra-ui/react'
+import { TokenInfo } from '@raydium-io/raydium-sdk-v2'
+import Decimal from 'decimal.js'
+import { Fragment, RefObject, useEffect, useRef, useState } from 'react'
+import { ChevronDown } from 'react-feather'
+import { useTranslation } from 'react-i18next'
+
 import AddressChip from '@/components/AddressChip'
 import IntervalCircle, { IntervalCircleHandler } from '@/components/IntervalCircle'
 import { QuestionToolTip } from '@/components/QuestionToolTip'
-
 import TokenAvatar from '@/components/TokenAvatar'
 import Tooltip from '@/components/Tooltip'
+import useTokenInfo from '@/hooks/token/useTokenInfo'
+import { useEvent } from '@/hooks/useEvent'
 import CircleCheckBreaker from '@/icons/misc/CircleCheckBreaker'
 import HorizontalSwitchIcon from '@/icons/misc/HorizontalSwitchIcon'
 import WarningIcon from '@/icons/misc/WarningIcon'
 import { colors } from '@/theme/cssVariables'
+import { formatCurrency, formatToRawLocaleStr, trimTrailZero } from '@/utils/numberish/formatter'
 import toPercentString from '@/utils/numberish/toPercentString'
-import { Box, Collapse, Flex, HStack, Text, Skeleton } from '@chakra-ui/react'
-import { TokenInfo } from '@raydium-io/raydium-sdk-v2'
-import { Fragment, useState, useRef, RefObject, useEffect } from 'react'
-import { ChevronDown } from 'react-feather'
-import { useTranslation } from 'react-i18next'
-import { ApiSwapV1OutSuccess } from '../type'
-import Decimal from 'decimal.js'
-import useTokenInfo from '@/hooks/token/useTokenInfo'
 import { getMintSymbol } from '@/utils/token'
-import { useEvent } from '@/hooks/useEvent'
-import { trimTrailZero, formatCurrency, formatToRawLocaleStr } from '@/utils/numberish/formatter'
+
+import { ApiSwapV1OutSuccess } from '../type'
 
 export function SwapInfoBoard({
   amountIn,
@@ -214,7 +215,7 @@ function OtherMiscUtils({
   onClick,
   onEnd
 }: {
-  refreshCircleRef: RefObject<IntervalCircleHandler>
+  refreshCircleRef: RefObject<IntervalCircleHandler | null>
   onClick?(): void
   onEnd?(): void
 }) {

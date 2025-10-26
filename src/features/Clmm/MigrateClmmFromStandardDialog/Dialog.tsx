@@ -1,62 +1,39 @@
-import { AprKey } from '@/hooks/pool/type'
 import {
-  Box,
-  Button,
-  Flex,
-  Grid,
-  GridItem,
-  HStack,
-  Heading,
-  Link,
-  Modal,
-  ModalBody,
-  ModalCloseButton,
-  ModalContent,
-  ModalFooter,
-  ModalHeader,
-  ModalOverlay,
-  Tab,
-  TabList,
-  Tabs,
-  Text,
-  VStack
+  Box, Button, Flex, Grid, GridItem, Heading, HStack, Link, Modal, ModalBody, ModalCloseButton, ModalContent, ModalFooter, ModalHeader,
+  ModalOverlay, Tab, TabList, Tabs, Text, VStack
 } from '@chakra-ui/react'
 import {
-  ApiV3PoolInfoConcentratedItem,
-  ApiV3PoolInfoStandardItem,
-  ApiV3Token,
-  FormatFarmInfoOutV6,
-  PoolFetchType,
-  TickUtils,
-  getLiquidityFromAmounts
+  ApiV3PoolInfoConcentratedItem, ApiV3PoolInfoStandardItem, ApiV3Token, FormatFarmInfoOutV6, getLiquidityFromAmounts, PoolFetchType,
+  TickUtils
 } from '@raydium-io/raydium-sdk-v2'
+import { PublicKey } from '@solana/web3.js'
+import BN from 'bn.js'
+import Decimal from 'decimal.js'
 import { useEffect, useRef, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 
-import { useAppStore, useClmmStore, useLiquidityStore } from '@/store'
 import IntervalCircle, { IntervalCircleHandler } from '@/components/IntervalCircle'
 import TokenAvatar from '@/components/TokenAvatar'
 import useRefreshEpochInfo from '@/hooks/app/useRefreshEpochInfo'
 import useSubscribeClmmInfo from '@/hooks/pool/clmm/useSubscribeClmmInfo'
+import { AprKey } from '@/hooks/pool/type'
 import useFetchPoolById from '@/hooks/pool/useFetchPoolById'
+import { MigrateClmmConfig } from '@/hooks/pool/useMigratePoolConfig'
 import { useEvent } from '@/hooks/useEvent'
+import CircleArrowDown from '@/icons/misc/CircleArrowDown'
 import CircleArrowRight from '@/icons/misc/CircleArrowRight'
 import CircleCheck from '@/icons/misc/CircleCheck'
 import CirclePlus from '@/icons/misc/CirclePlus'
+import { useAppStore, useClmmStore, useLiquidityStore } from '@/store'
 import { colors } from '@/theme/cssVariables'
 import { formatCurrency, formatToRawLocaleStr } from '@/utils/numberish/formatter'
-import { routeToPage } from '@/utils/routeTools'
-
-import CircleArrowDown from '@/icons/misc/CircleArrowDown'
 import toPercentString from '@/utils/numberish/toPercentString'
+import { routeToPage } from '@/utils/routeTools'
 import { wSolToSolString } from '@/utils/token'
-import BN from 'bn.js'
-import Decimal from 'decimal.js'
-import { useTranslation } from 'react-i18next'
+
 import EstimatedAprInfo from './AprInfo'
 import RangeInput from './RangeInput'
 import useValidateSchema from './useValidateSchema'
-import { MigrateClmmConfig } from '@/hooks/pool/useMigratePoolConfig'
-import { PublicKey } from '@solana/web3.js'
 
 interface MigrateFromStandardDialogProps {
   isOpen: boolean
@@ -146,7 +123,7 @@ export default function MigrateFromStandardDialog({
   const [baseIn, setBaseIn] = useState(true)
   const [defaultTicker, setDefaultTicker] = useState<TickData | undefined>()
   const [aprTab, setAprTab] = useState(AprKey.Day)
-  const customTickRef = useRef<TickData | undefined>()
+  const customTickRef = useRef<TickData | undefined>(undefined)
 
   const [clmmAmount, setClmmAmount] = useState({ amountA: '', amountB: '', amountSlippageA: new BN(0), amountSlippageB: new BN(0) })
   const [priceRange, setPriceRange] = useState<[string, string]>(['', ''])

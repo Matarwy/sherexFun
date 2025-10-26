@@ -1,8 +1,9 @@
+import { Flex, HStack, Stack, Text } from '@chakra-ui/react'
 import dayjs, { Dayjs } from 'dayjs'
-import { useEffect, useRef, useState } from 'react'
 import duration from 'dayjs/plugin/duration'
 import utc from 'dayjs/plugin/utc'
-import { Flex, HStack, Stack, Text } from '@chakra-ui/react'
+import { useEffect, useRef, useState } from 'react'
+
 import { colors } from '@/theme/cssVariables'
 
 dayjs.extend(utc)
@@ -22,7 +23,7 @@ type Countdown = {
 
 export function TorqueCountdown({ date, size = 'md' }: TorqueCountdownProps) {
   const [countdown, setCountdown] = useState<Countdown | undefined | string>()
-  const intervalRef = useRef<number>()
+  const intervalRef = useRef<number | undefined>(undefined)
 
   useEffect(() => {
     if (!date) {

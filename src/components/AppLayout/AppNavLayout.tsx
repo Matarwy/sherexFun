@@ -244,7 +244,7 @@ function SettingsMenu() {
 
 type Coords = { top: number; left?: number; right?: number }
 
-function SettingsMenuModalContent(props: { isOpen: boolean; triggerRef: React.RefObject<HTMLDivElement>; onClose: () => void }) {
+function SettingsMenuModalContent(props: { isOpen: boolean; triggerRef: React.RefObject<HTMLDivElement | null>; onClose: () => void }) {
   const contentRef = useRef<HTMLDivElement>(null)
   const { t, i18n } = useTranslation()
   const dir = i18n.dir() // 'ltr' | 'rtl'

@@ -1,5 +1,5 @@
-import { Avatar, Box, Button, Flex, Grid, GridItem, Image, Link, Text, useColorMode, useToast } from '@chakra-ui/react'
-import { Curve, getATAAddress, getPdaLaunchpadVaultId, LaunchpadPoolInfo } from '@raydium-io/raydium-sdk-v2'
+import { Box, Button, Flex, Grid, GridItem, Image, Link, Text, useColorMode, useToast } from '@chakra-ui/react'
+import { getATAAddress, getPdaLaunchpadVaultId, LaunchpadPoolInfo } from '@raydium-io/raydium-sdk-v2'
 import { TOKEN_PROGRAM_ID } from '@solana/spl-token'
 import { PublicKey } from '@solana/web3.js'
 import Decimal from 'decimal.js'
@@ -15,14 +15,13 @@ import { CopyButton } from '@/components/CopyButton'
 import Tabs from '@/components/Tabs'
 import { addPoolListener, removePoolListener } from '@/components/TradingView/streaming'
 import TVChart from '@/components/TradingView/TVChart'
-import { birthpadShareRate } from '@/constants/birthpad'
 import { DialogTypes } from '@/constants/dialogs'
 import { LocalStorageKey } from '@/constants/localStorage'
 import useCheckToken from '@/hooks/birthpad/useCheckToken'
 import useMeta from '@/hooks/birthpad/useMeta'
 import useMintInfo from '@/hooks/birthpad/useMintInfo'
 import usePoolRpcInfo, { getMarketCapData } from '@/hooks/birthpad/usePoolRpcInfo'
-import { ToLaunchpadConfig } from '@/hooks/birthpad/utils'
+import { ToBirthPadConfig } from '@/hooks/birthpad/utils'
 import useFetchCpmmRpcPoolData from '@/hooks/pool/amm/useFetchCpmmRpcPoolData'
 import useFetchRpcPoolData from '@/hooks/pool/amm/useFetchRpcPoolData'
 import { toastSubject } from '@/hooks/toast/useGlobalToast'
@@ -159,7 +158,7 @@ const TokenDetail = () => {
   const poolVault = ammPoolData?.vault.A?.toString() || cpmmPoolData?.vaultA?.toString()
 
   const configInfo = useMemo(
-    () => (mintInfo?.configInfo ? ToLaunchpadConfig(mintInfo.configInfo) : rpcConfigInfo),
+    () => (mintInfo?.configInfo ? ToBirthPadConfig(mintInfo.configInfo) : rpcConfigInfo),
     [mintInfo?.configInfo.pubKey, rpcConfigInfo]
   )
 
@@ -345,10 +344,10 @@ const TokenDetail = () => {
     >
       <GridItem gridArea="back" display={['none', 'initial', 'initial']}>
         <Flex alignItems="center" gap={1}>
-          <Link as={NextLink} href={`/birthpad${referrerQuery}`} display="contents" shallow color={colors.lightPurple}>
+          <Link as={NextLink} href={`/launchpad${referrerQuery}`} display="contents" shallow color={colors.lightPurple}>
             <ChevronLeftIcon />
             <Text fontWeight="500" fontSize="xl">
-              {t('common.back')}
+              {/* {t('common.back')} */} Back
             </Text>
           </Link>
           {!isFeeDistributionBannerShown ? (
@@ -380,7 +379,7 @@ const TokenDetail = () => {
                 <InfoIcon width="16px" height="16px" color={colors.textBirthpadLink} />
               </Box>
               <Text fontSize="sm" color={colors.textBirthpadLink}>
-                <Trans i18nKey={`birthpad.${isLanded ? 'pool_graduated' : 'pool_migrating'}`} values={{ token: mintInfo.symbol }}>
+                <Trans i18nKey={`launchpad.${isLanded ? 'pool_graduated' : 'pool_migrating'}`} values={{ token: mintInfo.symbol }}>
                   <Text as="span" fontWeight="bold"></Text>
                 </Trans>
               </Text>
@@ -422,10 +421,10 @@ const TokenDetail = () => {
                 </Text>
               </Flex>
               <Flex alignItems="center" gap={1}>
-                <Link as={NextLink} href={`/birthpad${referrerQuery}`} display="contents" shallow color={colors.lightPurple}>
+                <Link as={NextLink} href={`/launchpad${referrerQuery}`} display="contents" shallow color={colors.lightPurple}>
                   <ChevronLeftIcon width="12px" height="12px" />
                   <Text fontWeight="500" fontSize="xs">
-                    {t('common.back')}
+                    {/* {t('common.back')} */} Back
                   </Text>
                 </Link>
               </Flex>
@@ -584,7 +583,7 @@ const TokenDetail = () => {
                   openDialog(DialogTypes.AddComment({ poolId: poolId!, onUploadSuccess: commentRef.current.loadNewComments }))
                 }}
               >
-                {t('birthpad.add_comment')}
+                {/* {t('launchpad.add_comment')} */} Add Comment
               </Button>
             ) : null
           }
@@ -599,7 +598,7 @@ const TokenDetail = () => {
                   openDialog(DialogTypes.AddComment({ poolId: poolId!, onUploadSuccess: commentRef.current.loadNewComments }))
                 }}
               >
-                {t('birthpad.add_comment')}
+                {/* {t('launchpad.add_comment')} */} Add Comment
               </Button>
             ) : null
           }

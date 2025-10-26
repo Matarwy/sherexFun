@@ -1,36 +1,39 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react'
-import { Box, Flex, Button, Text, useColorMode, CircularProgress } from '@chakra-ui/react'
-import { NumericFormat } from 'react-number-format'
-import { ApiV3Token } from '@raydium-io/raydium-sdk-v2'
-import { colors } from '@/theme/cssVariables/colors'
-import { detectedSeparator, formatCurrency, trimTrailZero } from '@/utils/numberish/formatter'
-import { SegmentedButton, OrderSide } from '@/components/SegmentedButton'
-import { SlippageAdjuster } from './SlippageAdjuster'
-import { SlippageAdjuster as SwapSlippageAdjuster } from '@/components/SlippageAdjuster'
-import TokenAvatar from '@/components/TokenAvatar'
-import { useEvent } from '@/hooks/useEvent'
-import { Curve } from '@raydium-io/raydium-sdk-v2'
-import { LaunchpadConfigInfo, LaunchpadPoolInfo } from '@/hooks/birthpad/usePoolRpcInfo'
+import { Box, Button, CircularProgress, Flex, Text, useColorMode } from '@chakra-ui/react'
+import { ApiV3Token, Curve } from '@raydium-io/raydium-sdk-v2'
+import { NATIVE_MINT, TOKEN_PROGRAM_ID } from '@solana/spl-token'
+import { useWallet } from '@solana/wallet-adapter-react'
+import { Keypair } from '@solana/web3.js'
 import BN from 'bn.js'
 import Decimal from 'decimal.js'
-import { useBirthpadStore, useTokenAccountStore } from '@/store'
-import shallow from 'zustand/shallow'
-import { useDisclosure } from '@/hooks/useDelayDisclosure'
-import { MintInfo } from '../type'
-import { DEFAULT_SOL_RESERVER } from '@/components/TokenInput'
-import { toastSubject } from '@/hooks/toast/useGlobalToast'
-import useCheckToken from '@/hooks/birthpad/useCheckToken'
-import useSwap from '@/features/Swap/useSwap'
-import { NATIVE_MINT, TOKEN_PROGRAM_ID } from '@solana/spl-token'
-import { useSwapStore } from '@/features/Swap/useSwapStore'
-import { ApiSwapV1OutSuccess } from '@/features/Swap/type'
-import { useTranslation } from 'react-i18next'
-import BalanceWalletIcon from '@/icons/misc/BalanceWalletIcon'
-import IntervalCircle, { IntervalCircleHandler } from '@/components/IntervalCircle'
+import React, { useEffect, useMemo, useRef, useState } from 'react'
+import { NumericFormat } from 'react-number-format'
+import { shallow } from 'zustand/shallow'
+
 import ConnectedButton from '@/components/ConnectedButton'
+import IntervalCircle, { IntervalCircleHandler } from '@/components/IntervalCircle'
+import { OrderSide, SegmentedButton } from '@/components/SegmentedButton'
+import { SlippageAdjuster as SwapSlippageAdjuster } from '@/components/SlippageAdjuster'
+import TokenAvatar from '@/components/TokenAvatar'
+import { DEFAULT_SOL_RESERVER } from '@/components/TokenInput'
+import { useSwapStore } from '@/features/Swap/useSwapStore'
+import useCheckToken from '@/hooks/birthpad/useCheckToken'
+import { LaunchpadConfigInfo, LaunchpadPoolInfo } from '@/hooks/birthpad/usePoolRpcInfo'
+import { ToBirthPadConfig } from '@/hooks/birthpad/utils'
+import { ApiSwapV1OutSuccess } from '@/hooks/swap/type'
+import useSwap from '@/hooks/swap/useSwap'
+import { toastSubject } from '@/hooks/toast/useGlobalToast'
+import { useDisclosure } from '@/hooks/useDelayDisclosure'
+import { useEvent } from '@/hooks/useEvent'
+import BalanceWalletIcon from '@/icons/misc/BalanceWalletIcon'
+import { useBirthpadStore, useTokenAccountStore } from '@/store'
+import { colors } from '@/theme/cssVariables/colors'
+import { detectedSeparator, formatCurrency, trimTrailZero } from '@/utils/numberish/formatter'
 import { isSolWSol } from '@/utils/token'
+
+import { MintInfo } from '../type'
 import { useBirthPadShareInfo } from '../utils'
-import { ToLaunchpadConfig } from '@/hooks/birthpad/utils'
+
+import { SlippageAdjuster } from './SlippageAdjuster'
 
 export default function TradeBox({
   poolInfo,
@@ -49,9 +52,9 @@ export default function TradeBox({
   isMigrating?: boolean
   isLanded?: boolean
 }) {
+  const { signTransaction } = useWallet()
   const thousandSeparator = useMemo(() => (detectedSeparator === ',' ? '.' : ','), [])
   const { isOpen: isSending, onOpen: onSending, onClose: offSending } = useDisclosure()
-  const { t, i18n } = useTranslation()
   const { checkToken } = useCheckToken()
   const { isOpen: isLoading, onOpen: onLoading, onClose: offLoading } = useDisclosure()
   const getTokenBalanceUiAmount = useTokenAccountStore((s) => s.getTokenBalanceUiAmount)
@@ -122,10 +125,22 @@ export default function TradeBox({
     swapType: 'BaseIn'
   })
 
-  const balanceNotEnough = new Decimal(amount.amountIn || 0).gt(isBuy ? mintBalance : mintABalance)
-    ? t('error.balance_not_enough')
-    : undefined
-  const swapError = (error && i18n.exists(`swap.error_${error}`) ? t(`swap.error_${error}`) : error) || balanceNotEnough
+  const balanceNotEnough = new Decimal(amount.amountIn || 0).gt(isBuy ? mintBalance : mintABalance) ? 'Insufficent balance' : undefined
+  // const swapError = (error && i18n.exists(`swap.error_${error}`) ? t(`swap.error_${error}`) : error) || balanceNotEnough
+
+  const swapError = error
+    ? error === 'ROUTE_NOT_FOUND'
+      ? 'No Routes Found'
+      : error === 'AMOUNT_TOO_SMALL'
+      ? 'Swap Amount Too Small'
+      : error === 'TOO_LOW_LIQUIDITY'
+      ? 'Insufficient Liquidity'
+      : error === 'INSUFFICIENT_LIQUIDITY'
+      ? 'Insufficient Liquidity'
+      : error === 'REQ_POOL_NOT_OPEN'
+      ? 'Pool Open At'
+      : ''
+    : balanceNotEnough
 
   useEffect(() => {
     if (!isLanded) return
@@ -146,14 +161,17 @@ export default function TradeBox({
         protocolFeeRate: configInfo.tradeFeeRate,
         platformFeeRate: new BN(mintInfo?.platformInfo.feeRate ?? 0),
         curveType: configInfo.curveType,
-        shareFeeRate
+        shareFeeRate,
+        creatorFeeRate: new BN(0), // Provide actual value if available
+        transferFeeConfigA: undefined, // Provide actual value if available
+        slot: 0 // Provide actual value if available
       })
 
       return {
-        amount: trimTrailZero(new Decimal(result.amountA.toString()).div(10 ** mintADecimal).toFixed(mintADecimal)) ?? '',
+        amount: trimTrailZero(new Decimal(result.amountA.amount.toString()).div(10 ** mintADecimal).toFixed(mintADecimal)) ?? '',
         mintAmount:
           trimTrailZero(
-            new Decimal(result.amountA.toString())
+            new Decimal(result.amountA.amount.toString())
               .div(10 ** mintADecimal)
               .mul(1 - slippage)
               .toFixed(mintADecimal)
@@ -167,7 +185,10 @@ export default function TradeBox({
       protocolFeeRate: configInfo.tradeFeeRate,
       platformFeeRate: new BN(mintInfo?.platformInfo.feeRate ?? 0),
       curveType: configInfo.curveType,
-      shareFeeRate
+      shareFeeRate,
+      creatorFeeRate: new BN(0), // Provide actual value if available
+      transferFeeConfigA: undefined, // Provide actual value if available
+      slot: 0 // Provide actual value if available
     })
 
     return {
@@ -213,18 +234,21 @@ export default function TradeBox({
       const onConfirmed = () => setAmount({ amountIn: '', amountOut: '', minAmountOut: '' })
       if (isBuy) {
         if (!isMintCreated) {
+          const pair = Keypair.generate()
+          console.log('before callilng..')
           await createAndBuyAct({
             mint: mintInfo.mint,
             uri: mintInfo.metadataUrl,
             name: mintInfo.name,
             symbol: mintInfo.symbol,
             decimals: Number(mintInfo.decimals),
+            mintKp: pair,
             mintBInfo: mintInfo.mintB,
             buyAmount: new BN(new Decimal(amount.amountIn || 0).mul(10 ** mintBDecimal).toFixed(0)),
             slippage: new BN((slippage * 10000).toFixed(0)),
             migrateType: mintInfo.migrateType,
             shareFeeReceiver: wallet,
-            configInfo: ToLaunchpadConfig(mintInfo.configInfo),
+            configInfo: ToBirthPadConfig(mintInfo.configInfo),
             configId: mintInfo.configId,
             platformFeeRate: new BN(mintInfo.platformInfo.feeRate),
             totalSellA: new BN(mintInfo.totalSellA),
@@ -245,7 +269,7 @@ export default function TradeBox({
           slippage: new BN((slippage * 10000).toFixed(0)),
           shareFeeReceiver: wallet,
 
-          configInfo: ToLaunchpadConfig(mintInfo.configInfo),
+          configInfo: ToBirthPadConfig(mintInfo.configInfo),
           platformFeeRate: new BN(mintInfo.platformInfo.feeRate),
           onConfirmed,
           onFinally: offLoading
@@ -255,12 +279,12 @@ export default function TradeBox({
       await sellAct({
         mintInfo,
         sellAmount: new BN(new Decimal(amount.amountIn || 0).mul(10 ** mintADecimal).toFixed(0)),
-        minAmountB: new BN(new Decimal(amount.amountOut || 0).mul(10 ** mintBDecimal).toFixed(0)),
+        minAmountB: new BN(new Decimal(amount.minAmountOut || 0).mul(10 ** mintBDecimal).toFixed(0)),
         mintB: configInfo.mintB,
         mintBDecimals: mintBInfo.decimals,
-        slippage: new BN((useSwapStore.getState().slippage * 10000).toFixed(0)),
+        slippage: new BN((slippage * 10000).toFixed(0)),
         shareFeeReceiver: wallet,
-        configInfo: ToLaunchpadConfig(mintInfo.configInfo),
+        configInfo: ToBirthPadConfig(mintInfo.configInfo),
         platformFeeRate: new BN(mintInfo.platformInfo.feeRate),
         onConfirmed,
         onFinally: offLoading
@@ -357,7 +381,7 @@ export default function TradeBox({
       sx={
         isLight
           ? {
-              border: '1px solid #BFD2FF80'
+              border: '1px solid #ffdebf80'
             }
           : {}
       }
@@ -482,7 +506,7 @@ export default function TradeBox({
         <Button
           size="xs"
           variant="outline"
-          color={isLight ? '#474ABB' : '#BFD2FF'}
+          color={isLight ? '#bb7f47' : '#fff3bf'}
           opacity={0.5}
           background="#ABC4FF1F"
           borderRadius="4px"
@@ -494,7 +518,7 @@ export default function TradeBox({
         <Button
           size="xs"
           variant="outline"
-          color={isLight ? '#474ABB' : '#BFD2FF'}
+          color={isLight ? '#bb7f47' : '#fff3bf'}
           opacity={0.5}
           background="#ABC4FF1F"
           borderRadius="4px"
@@ -506,7 +530,7 @@ export default function TradeBox({
         <Button
           size="xs"
           variant="outline"
-          color={isLight ? '#474ABB' : '#BFD2FF'}
+          color={isLight ? '#bb7f47' : '#fff3bf'}
           opacity={0.5}
           background="#ABC4FF1F"
           borderRadius="4px"
@@ -518,7 +542,7 @@ export default function TradeBox({
         <Button
           size="xs"
           variant="outline"
-          color={isLight ? '#474ABB' : '#BFD2FF'}
+          color={isLight ? '#bb7f47' : '#fff3bf'}
           opacity={0.5}
           background="#ABC4FF1F"
           borderRadius="4px"
@@ -548,17 +572,17 @@ export default function TradeBox({
       ) : null}
       <Box my={5} color={isLight ? '#000248' : colors.lightPurple}>
         <Text>
-          <Text as="span" color={isLight ? '#474ABB' : '#BFD2FF80'} pr={1}>
+          <Text as="span" color={isLight ? '#bb7f47' : '#ffdebf80'} pr={1}>
             You receive:
           </Text>
           {amount.amountOut || '--'} {isBuy ? symbolA : symbolB}
         </Text>
         <Text>
-          <Text as="span" color={isLight ? '#474ABB' : '#BFD2FF80'} pr={1}>
+          <Text as="span" color={isLight ? '#bb7f47' : '#ffdebf80'} pr={1}>
             (Minimum received:
           </Text>
           {amount.minAmountOut || '--'} {isBuy ? symbolA : symbolB}
-          <Text as="span" color={isLight ? '#474ABB' : '#BFD2FF80'} pr={1}>
+          <Text as="span" color={isLight ? '#bb7f47' : '#ffdebf80'} pr={1}>
             )
           </Text>
         </Text>
@@ -586,7 +610,7 @@ export default function TradeBox({
           new Decimal(amount.amountOut || 0).lte(0) ||
           new Decimal(amount.amountIn || 0).gt(isBuy ? mintBalance : mintABalance) ||
           (!isMintCreated && !isBuy) ||
-          (isLanded && swapError)
+          (isLanded && !!swapError)
         }
         onClick={isLanded ? handleClickSwap : handleClickSubmit}
       >

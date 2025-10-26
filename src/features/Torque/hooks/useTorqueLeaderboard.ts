@@ -1,9 +1,10 @@
 import { useWallet } from '@solana/wallet-adapter-react'
-import { useCallback, useEffect, useRef, useState } from 'react'
-import { TorqueLeaderboard, TorqueLeaderboardOffer } from '../types'
-import { fetchTorqueLeaderboard, fetchLeaderboardOfferDetails } from '../utils'
 import { LAMPORTS_PER_SOL } from '@solana/web3.js'
 import dayjs, { Dayjs } from 'dayjs'
+import { useCallback, useEffect, useRef, useState } from 'react'
+
+import { TorqueLeaderboard, TorqueLeaderboardOffer } from '../types'
+import { fetchLeaderboardOfferDetails, fetchTorqueLeaderboard } from '../utils'
 
 const LEADERBOARD_ID = process.env.NEXT_PUBLIC_TORQUE_LEADERBOARD_ID || 'cmaaz4o7b00006ddrm6tdii0h'
 
@@ -14,7 +15,7 @@ export function useTorqueLeaderboard() {
   const [lastUpdated, setLastUpdated] = useState<Dayjs>(dayjs())
   const [error, setError] = useState<string | null>(null)
   const [leaderboard, setLeaderboard] = useState<TorqueLeaderboard>()
-  const offerDetailsRef = useRef<TorqueLeaderboardOffer>()
+  const offerDetailsRef = useRef<TorqueLeaderboardOffer | undefined>(undefined)
 
   const wallet = useWallet()
 

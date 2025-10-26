@@ -1,5 +1,14 @@
 import {
-  Box, Button, CircularProgress, Collapse, Flex, HStack, SimpleGrid, Text, Tooltip as ChakraTip, useDisclosure
+  Box,
+  Button,
+  CircularProgress,
+  Collapse,
+  Flex,
+  HStack,
+  SimpleGrid,
+  Text,
+  Tooltip as ChakraTip,
+  useDisclosure
 } from '@chakra-ui/react'
 import { ApiV3Token, RAYMint, SOL_INFO, TokenInfo, TransferFeeDataBaseType } from '@raydium-io/raydium-sdk-v2'
 import { NATIVE_MINT } from '@solana/spl-token'
@@ -65,7 +74,7 @@ export function SwapPanel({
   const { isOpen: isSending, onOpen: onSending, onClose: offSending } = useDisclosure()
   const { isOpen: isUnWrapping, onOpen: onUnWrapping, onClose: offUnWrapping } = useDisclosure()
   const { isOpen: isHightRiskOpen, onOpen: onHightRiskOpen, onClose: offHightRiskOpen } = useDisclosure()
-  const sendingResult = useRef<ApiSwapV1OutSuccess | undefined>()
+  const sendingResult = useRef<ApiSwapV1OutSuccess | undefined>(undefined)
   const wsolBalance = getTokenBalanceUiAmount({ mint: NATIVE_MINT.toBase58(), decimals: SOL_INFO.decimals })
 
   const [inputMint, setInputMint] = useState<string>(PublicKey.default.toBase58())

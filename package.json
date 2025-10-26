@@ -102,11 +102,11 @@
     "i18next-browser-languagedetector": "^7.0.1",
     "immer": "^9.0.15",
     "lightweight-charts": "^4.0.1",
-    "next": "^16.0.0",
-    "react": "^19.2.0",
+    "next": "16",
+    "react": "18.3.1",
     "react-day-picker": "^8.8.0",
     "react-device-detect": "^2.2.3",
-    "react-dom": "^19.2.0",
+    "react-dom": "18.3.1",
     "react-feather": "^2.0.10",
     "react-i18next": "^12.2.2",
     "react-number-format": "^5.4.2",
@@ -122,17 +122,18 @@
     "zustand": "^4.1.1"
   },
   "devDependencies": {
+    "@types/node": "24.9.1",
     "@types/node-fetch": "^2.6.2",
-    "@types/react": "^18.0.0",
-    "@types/react-dom": "^18.0.0",
+    "@types/react": "19.2.2",
+    "@types/react-dom": "19.2.2",
     "eslint": "^8.22.0",
-    "eslint-config-next": "^16.0.0",
+    "eslint-config-next": "16.0.0",
     "eslint-plugin-react": "^7.31.7",
     "patch-package": "^8.0.1",
     "postinstall-postinstall": "^2.1.0",
     "prettier": "^2.7.1",
     "shx": "^0.3.4",
-    "typescript": "^5.0.4"
+    "typescript": "5.9.3"
   },
   "browser": {
     "fs": false,

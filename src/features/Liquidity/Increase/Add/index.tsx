@@ -1,29 +1,29 @@
 import { Flex, HStack, Text, useDisclosure } from '@chakra-ui/react'
-import { ApiV3PoolInfoStandardItem, ApiV3Token, TokenInfo, ApiV3PoolInfoStandardItemCpmm } from '@raydium-io/raydium-sdk-v2'
+import { ApiV3PoolInfoStandardItem, ApiV3PoolInfoStandardItemCpmm, ApiV3Token, TokenInfo } from '@raydium-io/raydium-sdk-v2'
+import BN from 'bn.js'
+import Decimal from 'decimal.js'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import shallow from 'zustand/shallow'
 
 import Button from '@/components/Button'
 import IntervalCircle, { IntervalCircleHandler } from '@/components/IntervalCircle'
-import TokenInput from '@/components/TokenInput'
-import HorizontalSwitchSmallIcon from '@/icons/misc/HorizontalSwitchSmallIcon'
-import { useAppStore, useLiquidityStore, useTokenAccountStore } from '@/store'
-import { RpcAmmPool } from '@/hooks/pool/amm/useFetchRpcPoolData'
-import { RpcCpmmPool } from '@/hooks/pool/amm/useFetchCpmmRpcPoolData'
-import { colors } from '@/theme/cssVariables'
-import { formatCurrency } from '@/utils/numberish/formatter'
-import { getMintSymbol, wSolToSolString } from '@/utils/token'
-// import AutoSwapModal from './components/AutoSwapModal'
-import StakeLpModal from './components/StakeLpModal'
 import { SlippageAdjuster } from '@/components/SlippageAdjuster'
-
-import Decimal from 'decimal.js'
-import shallow from 'zustand/shallow'
+import TokenInput from '@/components/TokenInput'
+import useRefreshEpochInfo from '@/hooks/app/useRefreshEpochInfo'
+import { RpcCpmmPool } from '@/hooks/pool/amm/useFetchCpmmRpcPoolData'
+import { RpcAmmPool } from '@/hooks/pool/amm/useFetchRpcPoolData'
 // import { QuestionToolTip } from '@/components/QuestionToolTip'
 import { useEvent } from '@/hooks/useEvent'
+import HorizontalSwitchSmallIcon from '@/icons/misc/HorizontalSwitchSmallIcon'
+import { useAppStore, useLiquidityStore, useTokenAccountStore } from '@/store'
+import { colors } from '@/theme/cssVariables'
 import { throttle } from '@/utils/functionMethods'
-import useRefreshEpochInfo from '@/hooks/app/useRefreshEpochInfo'
-import BN from 'bn.js'
+import { formatCurrency } from '@/utils/numberish/formatter'
+import { getMintSymbol, wSolToSolString } from '@/utils/token'
+
+// import AutoSwapModal from './components/AutoSwapModal'
+import StakeLpModal from './components/StakeLpModal'
 
 const InputWidth = ['100%']
 export default function AddLiquidity({
@@ -182,7 +182,10 @@ export default function AddLiquidity({
       onFinally: () => setIsTxSending(false)
     }
 
-    const isCpmm = pool.programId === useAppStore.getState().programIdConfig.CREATE_CPMM_POOL_PROGRAM.toBase58()
+    // Replace 'CREATE_CPMM_POOL_PROGRAM' with the correct property name from your programIdConfig
+    // For example, if it should be 'LAUNCHPAD_PROGRAM', use that:
+    const isCpmm = pool.programId === useAppStore.getState().programIdConfig.LAUNCHPAD_PROGRAM.toBase58()
+    // If you intended to use 'CREATE_CPMM_POOL_PROGRAM', ensure it exists in programIdConfig's type and initialization.
     const baseIn = focusRef.current === 'base'
 
     if (isCpmm) {

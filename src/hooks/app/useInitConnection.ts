@@ -1,40 +1,43 @@
+'use client'
 import { txToBase64, TxVersion, validateAndParsePublicKey } from '@raydium-io/raydium-sdk-v2'
 import { useConnection, useWallet } from '@solana/wallet-adapter-react'
-import { clusterApiUrl, PublicKey, Transaction, VersionedTransaction } from '@solana/web3.js'
+import { PublicKey, Transaction, VersionedTransaction } from '@solana/web3.js'
 import { useCallback, useEffect, useMemo, useRef } from 'react'
 import { parseUserAgent } from 'react-device-detect'
 import shallow from 'zustand/shallow'
 
 import { sendWalletEvent } from '@/api/event'
 import { extendTxData, validateTxData } from '@/api/txService'
+import { toastSubject } from '@/hooks/toast/useGlobalToast'
 import usePrevious from '@/hooks/usePrevious'
 import { defaultEndpoint, useAppStore } from '@/store/useAppStore'
 import { cancelAllRetry, isLocal } from '@/utils/common'
 import { getDevOnlyStorage } from '@/utils/localStorage'
 
-import { SSRData } from '../../type'
-import { toastSubject } from '../toast/useGlobalToast'
+/** If you use SSRData elsewhere you can keep it; otherwise make it optional */
+export type SSRData = Record<string, unknown>
 
 const localFakePubKey = '_sherex_f_wallet_'
 export const WALLET_STORAGE_KEY = 'walletName'
 
-function useInitConnection(props: SSRData) {
+function useInitConnection(props: SSRData = {}) {
   const { connection } = useConnection()
   const { publicKey: _publicKey, signAllTransactions: _signAllTransactions, signTransaction, wallet, connected } = useWallet()
 
+  /** allow local fake pubkey while dev */
   const publicKey = useMemo(() => {
     const localPub = getDevOnlyStorage(localFakePubKey)
     if (isLocal() && localPub) {
       try {
         return validateAndParsePublicKey({ publicKey: localPub })
       } catch {
-        return _publicKey
+        /* fall through */
       }
     }
-
-    return _publicKey
+    return _publicKey ?? null
   }, [_publicKey])
 
+  /** normalize signAllTransactions with WC/Android edge-cases + validation */
   const signAllTransactions = useMemo(
     () =>
       _signAllTransactions
@@ -42,43 +45,40 @@ function useInitConnection(props: SSRData) {
             const isV0Tx = useAppStore.getState().txVersion === TxVersion.V0
             let transactions = [...propsTransactions]
             let unsignedTxData = transactions.map(txToBase64)
+
+            // WalletConnect extension: extend if needed
             if (useAppStore.getState().wallet?.adapter.name?.toLowerCase() === 'walletconnect') {
-              const { success, data: extendedTxData } = await extendTxData(unsignedTxData)
+              const { success, data: extended } = await extendTxData(unsignedTxData)
               if (success) {
-                const allTxBuf = extendedTxData.map((tx) => Buffer.from(tx, 'base64'))
-                transactions = allTxBuf.map((txBuf) =>
-                  isV0Tx ? VersionedTransaction.deserialize(txBuf as unknown as Uint8Array) : Transaction.from(txBuf)
+                const bufs = extended.map((tx) => Buffer.from(tx, 'base64'))
+                transactions = bufs.map((b) =>
+                  isV0Tx ? VersionedTransaction.deserialize(b as unknown as Uint8Array) : Transaction.from(b)
                 ) as T[]
                 unsignedTxData = transactions.map(txToBase64)
               }
             }
 
+            // Coinbase on Android: fallback to per-tx signing
             const deviceInfo = parseUserAgent(window.navigator.userAgent)
             const adapter = useAppStore.getState().wallet?.adapter
             const isAndroidCoinBase = deviceInfo.os.name === 'Android' && adapter?.name === 'Coinbase Wallet'
 
-            const time = Date.now()
-            let allSignedTx: T[] = []
-            if (isAndroidCoinBase) {
-              for (const tx of transactions) {
-                const signed = await signTransaction!(tx)
-                allSignedTx.push(signed)
-              }
+            const t0 = Date.now()
+            let allSigned: T[] = []
+            if (isAndroidCoinBase && signTransaction) {
+              for (const tx of transactions) allSigned.push(await signTransaction(tx))
             } else {
-              allSignedTx = await _signAllTransactions(transactions)
+              allSigned = await _signAllTransactions(transactions)
             }
-            const allBase64Tx = allSignedTx.map(txToBase64)
-            const res = await validateTxData({
-              preData: unsignedTxData,
-              data: allBase64Tx,
-              userSignTime: Date.now() - time
-            })
+
+            const allBase64Tx = allSigned.map(txToBase64)
+            const res = await validateTxData({ preData: unsignedTxData, data: allBase64Tx, userSignTime: Date.now() - t0 })
             if (!res.success) throw new Error(res.msg)
 
-            return allSignedTx
+            return allSigned
           }
         : undefined,
-    [_signAllTransactions]
+    [_signAllTransactions, signTransaction]
   )
 
   const { urlConfigs, fetchRpcsAct, initRaydiumAct, raydium } = useAppStore(
@@ -90,106 +90,100 @@ function useInitConnection(props: SSRData) {
     }),
     shallow
   )
+
   const walletRef = useRef(wallet)
-  const useWalletRef = useRef<{
-    publicKey?: PublicKey | null
-  }>({})
   const prevRpcEndPoint = usePrevious(connection.rpcEndpoint)
-  const preUrlConfigs = usePrevious(urlConfigs)
+  const prevUrlConfigs = usePrevious(urlConfigs)
 
   const isRpcChanged = !!prevRpcEndPoint && prevRpcEndPoint !== connection.rpcEndpoint
-  const isUrlConfigChanged = urlConfigs !== preUrlConfigs
+  const isUrlConfigChanged = urlConfigs !== prevUrlConfigs
   const isNeedReload = isRpcChanged || isUrlConfigChanged
 
-  useWalletRef.current = { publicKey }
-
+  /** toasts */
   const showConnect = useCallback(
     (key: PublicKey) => {
-      toastSubject.next({
-        title: `${wallet?.adapter.name} wallet connected`,
-        description: `Wallet ${key}`,
-        status: 'success'
-      })
+      toastSubject.next({ title: `${wallet?.adapter.name} wallet connected`, description: `Wallet ${key}`, status: 'success' })
     },
     [wallet]
   )
-
   const showDisconnect = useCallback(() => {
-    toastSubject.next({
-      title: `${wallet?.adapter.name} wallet disconnected`,
-      status: 'warning'
-    })
+    toastSubject.next({ title: `${wallet?.adapter.name} wallet disconnected`, status: 'warning' })
   }, [wallet])
 
-  // fetch rpc nodes
+  /** fetch rpc list once */
   useEffect(() => {
-    if (!useAppStore.getState().rpcs?.length) {
-      fetchRpcsAct()
-    }
+    if (!useAppStore.getState().rpcs?.length) fetchRpcsAct()
   }, [fetchRpcsAct, urlConfigs.BASE_HOST])
 
-  // register wallet connect/disconnect toast
+  /** wallet connect/disconnect events */
   useEffect(() => {
     wallet?.adapter.once('connect', showConnect)
     wallet?.adapter.once('disconnect', showDisconnect)
     walletRef.current = wallet || walletRef.current
-
     return () => {
       wallet?.adapter.off('connect', showConnect)
       wallet?.adapter.off('disconnect', showDisconnect)
     }
   }, [wallet, showConnect, showDisconnect])
 
-  // init raydium sdk or update connection action
+  /** init Raydium (no walletAdapter passed) */
   useEffect(() => {
-    if (!connection || connection.rpcEndpoint === defaultEndpoint) return
+    if (!connection) return
 
+    // put connection + signer in store for Raydium.load()
     useAppStore.setState({ connection, signAllTransactions }, false, { type: 'useInitConnection' } as any)
-    // raydium sdk initialization can be done with connection only, if url or rpc changed, re-init
+
+    // if raydium already exists and rpc/url didn’t change, just swap connection
     if (raydium && !isNeedReload) {
       raydium.setConnection(connection)
-      raydium.cluster = 'mainnet' //connection.rpcEndpoint === clusterApiUrl('devnet') ? 'devnet' : 'mainnet'
+      // cluster inferred inside init; here we avoid forcing value to prevent mismatch
       return
     }
 
+    // first init or reload (rpc/urls changed)
     const ssrReloadData = isNeedReload ? {} : props
+    // IMPORTANT: don't pass walletAdapter (you said it's commented)
+    initRaydiumAct({
+      connection,
+      owner: publicKey ?? undefined,
+      // walletAdapter: undefined,
+      signAllTransactions
+    })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [connection?.rpcEndpoint, isNeedReload, publicKey?.toBase58(), signAllTransactions])
 
-    initRaydiumAct({ connection, ...ssrReloadData })
-    // eslint-disable-next-line
-  }, [initRaydiumAct, connection?.rpcEndpoint, raydium, signAllTransactions, isNeedReload])
-
-  // update publickey/signAllTransactions in raydium sdk
+  /** keep Raydium owner + signAll in sync */
   useEffect(() => {
-    // if user connected wallet, update pubk
     if (raydium) {
       raydium.setOwner(publicKey || undefined)
       raydium.setSignAllTransactions(signAllTransactions)
     }
   }, [raydium, publicKey, signAllTransactions])
 
-  // update publickey/wallet in app store
+  /** mirror wallet/publicKey into app store */
   useEffect(() => {
-    const payload = {
-      connected: !!useWalletRef.current.publicKey,
-      publicKey: useWalletRef.current.publicKey || undefined,
-      wallet: walletRef.current || undefined
-    }
-    useAppStore.setState(payload, false, { type: 'useInitConnection', payload } as any)
+    useAppStore.setState(
+      {
+        connected: !!publicKey,
+        publicKey: publicKey || null,
+        wallet: walletRef.current || undefined
+      },
+      false,
+      { type: 'useInitConnection.setWallet' } as any
+    )
   }, [publicKey?.toBase58(), wallet?.adapter.name])
 
+  /** misc cleanups */
   useEffect(() => cancelAllRetry, [connection.rpcEndpoint])
   useEffect(() => {
     if (!wallet) return
-    return () => useAppStore.setState({ txVersion: TxVersion.V0 })
+    return () => useAppStore.setState({ txVersion: TxVersion.LEGACY })
   }, [wallet?.adapter.name])
 
+  /** analytics */
   useEffect(() => {
     if (connected && publicKey) {
-      sendWalletEvent({
-        type: 'connectWallet',
-        connectStatus: 'success',
-        walletName: wallet?.adapter.name || 'unknown'
-      })
+      sendWalletEvent({ type: 'connectWallet', connectStatus: 'success', walletName: wallet?.adapter.name || 'unknown' })
       if (wallet) localStorage.setItem(WALLET_STORAGE_KEY, `"${wallet?.adapter.name}"`)
     }
   }, [publicKey, connected, wallet?.adapter.name])

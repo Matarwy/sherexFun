@@ -76,7 +76,7 @@ const TokenListCard = ({
   const { isMobile } = useResponsive()
   const isEmpty = !isLoading && tokens.length === 0
 
-  const { observe, stop } = useIntersectionObserver({ rootRef: parentRef, options: { rootMargin: '80%' } })
+  const { observe, stop } = useIntersectionObserver({ rootRef: parentRef as React.RefObject<HTMLElement>, options: { rootMargin: '80%' } })
   const contextValue = useMemo(() => ({ observeFn: observe }), [observe])
 
   useEffect(() => stop, [])

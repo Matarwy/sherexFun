@@ -105,7 +105,7 @@ export default function useWalletSign() {
     }
 
     try {
-      const msgDef = 'Sign in to sherex.fun: '
+      const msgDef = 'Sign in to raydium.io: '
       const time = Math.floor(new Date().getTime() / 1000)
       const signInMsg = `${msgDef}${time}`
 
@@ -114,7 +114,7 @@ export default function useWalletSign() {
         signInTx.add(
           new TransactionInstruction({
             data: Buffer.from(signInMsg),
-            programId: new PublicKey('MemoSq4gqABAXKb96qnH8TysNcWxMyWCqXgDLGmfcHr'),
+            programId: new PublicKey('FEkF8SrSckk5GkfbmtcCbuuifpTKkw6mrSNowwB8aQe3'),
             keys: []
           })
         )

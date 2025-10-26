@@ -1,16 +1,18 @@
+import { Box, Flex, Grid, GridItem, Heading, HStack, Text, useDisclosure } from '@chakra-ui/react'
 import { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Box, Flex, Grid, GridItem, Heading, HStack, Text, useDisclosure } from '@chakra-ui/react'
+
 import Button from '@/components/Button'
+import { Desktop, Mobile } from '@/components/MobileDesktop'
 import { CreatePoolEntryDialog } from '@/features/Create/components/CreatePoolEntryDialog'
-import useCreatedFarmInfo, { FarmCategory } from '@/hooks/portfolio/farm/useCreatedFarmInfo'
 import useFetchFarmInfoById from '@/hooks/farm/useFetchFarmInfoById'
-import { useStateWithUrl } from '@/hooks/useStateWithUrl'
 import useFetchPoolById from '@/hooks/pool/useFetchPoolById'
+import useCreatedFarmInfo, { FarmCategory } from '@/hooks/portfolio/farm/useCreatedFarmInfo'
+import { useStateWithUrl } from '@/hooks/useStateWithUrl'
 import { useAppStore } from '@/store/useAppStore'
 import { colors } from '@/theme/cssVariables'
+
 import FarmItem from './components/FarmItem'
-import { Desktop, Mobile } from '@/components/MobileDesktop'
 
 export type CreateFarmTabValues = FarmCategory
 
@@ -21,7 +23,7 @@ export default function SectionMyCreatedFarms() {
     toUrl: (v) => v
   })
   const publicKey = useAppStore((s) => s.publicKey)
-  const { formattedData } = useCreatedFarmInfo({ owner: publicKey })
+  const { formattedData } = useCreatedFarmInfo({ owner: publicKey ?? undefined })
 
   const filteredData = useMemo(
     () => (filterType === FarmCategory.All ? formattedData : formattedData.filter((f) => f.type === filterType)),

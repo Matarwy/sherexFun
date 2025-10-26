@@ -1,15 +1,5 @@
 import {
-  Button,
-  Flex,
-  Grid,
-  Modal,
-  ModalBody,
-  ModalCloseButton,
-  ModalContent,
-  ModalFooter,
-  ModalOverlay,
-  Text,
-  useColorMode
+  Button, Flex, Grid, Modal, ModalBody, ModalCloseButton, ModalContent, ModalFooter, ModalOverlay, Text, useColorMode
 } from '@chakra-ui/react'
 import { Curve, LaunchpadPoolInfo, LaunchpadPoolInitParam } from '@raydium-io/raydium-sdk-v2'
 import { Keypair } from '@solana/web3.js'
@@ -18,23 +8,26 @@ import Decimal from 'decimal.js'
 import { useRouter } from 'next/router'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { NumericFormat } from 'react-number-format'
-import shallow from 'zustand/shallow'
+import { shallow } from 'zustand/shallow'
 
 import Turnstile, { ActionRef } from '@/components/Turnstile'
 import { DialogProps, InitialBuyDialogProps } from '@/constants/dialogs'
 import { useBirthPadShareInfo, useReferrerQuery } from '@/features/Birthpad/utils'
-import { useSwapStore } from '@/features/Swap/useSwapStore'
 import useCheckToken from '@/hooks/birthpad/useCheckToken'
 import { usePlatformInfo } from '@/hooks/birthpad/usePlatformInfo'
-import { ToLaunchpadConfig } from '@/hooks/birthpad/utils'
+import { ToBirthPadConfig } from '@/hooks/birthpad/utils'
 import { toastSubject } from '@/hooks/toast/useGlobalToast'
 import { useDisclosure } from '@/hooks/useDelayDisclosure'
 import { useEvent } from '@/hooks/useEvent'
 import { useBirthpadStore } from '@/store'
 import { colors } from '@/theme/cssVariables'
+import { uploadFile } from '@/utils/file/upload'
 import { detectedSeparator, trimTrailZero } from '@/utils/numberish/formatter'
 
+// import { useWallet } from '@solana/wallet-adapter-react'
+
 export const InitialBuyDialog = ({ setIsOpen, configInfo, ...mintData }: DialogProps<InitialBuyDialogProps>) => {
+  // const { signTransaction } = useWallet();
   const { colorMode } = useColorMode()
   const isLight = colorMode === 'light'
   const { isOpen: isLoading, onOpen: onLoading, onClose: offLoading } = useDisclosure()
@@ -58,44 +51,54 @@ export const InitialBuyDialog = ({ setIsOpen, configInfo, ...mintData }: DialogP
   const turnstileRef = useRef<ActionRef>(null)
 
   const handleAmountChange = useEvent((val: string) => {
-    if (!poolInfo || !val) return ''
-    return trimTrailZero(
-      new Decimal(
-        Curve.buyExactIn({
-          poolInfo,
-          amountB: new BN(new Decimal(val).mul(10 ** (configInfo.mintInfoB?.decimals ?? 9)).toFixed(0)),
-          protocolFeeRate: new BN(configInfo.key.tradeFeeRate),
-          platformFeeRate: platformInfo?.feeRate ?? new BN(1000),
-          curveType: configInfo.key.curveType,
-          shareFeeRate
-        }).amountA.toString()
-      )
-        .div(10 ** poolInfo.mintDecimalsA)
-        .toFixed(poolInfo.mintDecimalsA)
-    )
+    if (!poolInfo || !val || typeof val !== 'string') return ''
+    try {
+      const buyResult = Curve.buyExactIn({
+        poolInfo,
+        amountB: new BN(new Decimal(val || '0').mul(10 ** (configInfo.mintInfoB?.decimals ?? 9)).toFixed(0)),
+        protocolFeeRate: new BN(configInfo.key.tradeFeeRate),
+        platformFeeRate: platformInfo?.feeRate ?? new BN(7500),
+        curveType: configInfo.key.curveType,
+        shareFeeRate,
+        creatorFeeRate: new BN(0), // or use the correct value if available
+        transferFeeConfigA: undefined, // or use the correct value if available
+        slot: 0 // or use the correct value if available
+      })
+
+      return trimTrailZero(new Decimal(buyResult.amountA.toString()).div(10 ** poolInfo.mintDecimalsA).toFixed(poolInfo.mintDecimalsA))
+    } catch (error) {
+      console.error('Error in handleAmountChange:', error)
+      return ''
+    }
   })
 
   useEffect(() => {
-    async function getTempInfo() {
-      const { poolInfo } = await createAndBuyAct({
-        mint: Keypair.generate().publicKey.toBase58(),
-        symbol: mintData.ticker,
-        mintBInfo: configInfo.mintInfoB,
-        configInfo: ToLaunchpadConfig(configInfo.key),
-        configId: configInfo.key.pubKey,
-        uri: 'https://',
-        decimals: 6,
-        buyAmount: new BN(1),
-        notExecute: true,
-        ...mintData
-      })
-
-      setPoolInfo(poolInfo)
-      setTimeout(() => {
-        handleAmountChange(amountRef.current)
-      })
-    }
-    getTempInfo()
+    // async function getTempInfo() {
+    //   try {
+    //     const { poolInfo } = await createAndBuyAct({
+    //       mint: Keypair.generate().publicKey.toBase58(),
+    //       symbol: mintData.ticker,
+    //       mintBInfo: configInfo.mintInfoB,
+    //       configInfo: ToBirthPadConfig(configInfo.key),
+    //       configId: configInfo.key.pubKey,
+    //       uri: 'https://',
+    //       decimals: 6,
+    //       buyAmount: new BN(1),
+    //       notExecute: true,
+    //       ...mintData,
+    //       mintKp: Keypair.generate()
+    //     })
+    //     setPoolInfo(poolInfo)
+    //     setTimeout(() => {
+    //       if (amountRef.current && typeof amountRef.current === 'string') {
+    //         handleAmountChange(amountRef.current)
+    //       }
+    //     }, 100)
+    //   } catch (error) {
+    //     console.error('Error getting temp info:', error)
+    //   }
+    // }
+    // getTempInfo()
   }, [mintData.name, configInfo.key.pubKey, mintData.tag])
 
   const handleClickBuy = async () => {
@@ -106,36 +109,54 @@ export const InitialBuyDialog = ({ setIsOpen, configInfo, ...mintData }: DialogP
       return
     }
     try {
-      const tempMintData = await createRandomMintAct({
-        ...mintData,
-        configId: configInfo.key.pubKey,
-        symbol: mintData.ticker
-      })
-      if (!tempMintData) {
-        toastSubject.next({})
-        return
-      }
+      console.log('before callling tempMintData..')
+      const uri = await uploadFile(mintData.file)
+      // const tempMintData = await createRandomMintAct({
+      //   ...mintData,
+      //   configId: configInfo.key.pubKey,
+      //   symbol: mintData.ticker
+      // })
 
+      const mintKp = Keypair.generate()
+      const mint = mintKp.publicKey.toBase58()
+      console.log('mint======>', mint)
+
+      // if (!tempMintData) {
+      //   toastSubject.next({})
+      //   return
+      // }
+
+      // console.log("tempMintData======>", tempMintData)
+
+      console.log('amount======>', amount)
+      // let _amount = 0.0001
+
+      const buyAmount = new BN(new Decimal(amount).mul(10 ** 9).toString())
+      console.log('buyAmount======>', buyAmount.toString())
+      console.log('before callilng here..')
       await createAndBuyAct({
         ...mintData,
-        mint: tempMintData.mint,
-        uri: tempMintData.metadataLink,
+        mint: mint,
+        uri: uri,
         name: mintData.name,
         symbol: mintData.ticker,
         decimals: 6,
         mintBInfo: configInfo.mintInfoB,
-        buyAmount: new BN(new Decimal(amount).mul(10 ** 9).toString()),
-        configInfo: ToLaunchpadConfig(configInfo.key),
+        buyAmount: buyAmount,
+        configInfo: ToBirthPadConfig(configInfo.key),
         configId: configInfo.key.pubKey,
-        slippage: new BN((useSwapStore.getState().slippage * 10000).toFixed(0)),
+        slippage: new BN((useBirthpadStore.getState().slippage * 10000).toFixed(0)),
         migrateType: mintData.migrateType || 'amm',
         shareFeeReceiver: wallet,
+        mintKp: mintKp,
+        createOnly: false,
         onConfirmed: () => {
-          router.push(`/birthpad/token?mint=${tempMintData.mint}&fromCreate=true${referrerQuery}`)
+          router.push(`/token?mint=${mint}&fromCreate=true${referrerQuery}`)
         }
       })
       setIsOpen(false)
     } catch (e: any) {
+      console.log('error======>', e)
       toastSubject.next({
         status: 'error',
         title: 'Create and Buy Token Error',
@@ -173,30 +194,53 @@ export const InitialBuyDialog = ({ setIsOpen, configInfo, ...mintData }: DialogP
       offCreateLoading()
       return
     }
-    // try {
-    // mint B check
-    const mint = await createMintAct({
-      ...mintData,
-      configId: configInfo.key.pubKey,
-      symbol: mintData.ticker,
-      cfToken: turnstile
-    })
+    try {
+      const uri = await uploadFile(mintData.file)
+      // const tempMintData = await createRandomMintAct({
+      //   ...mintData,
+      //   configId: configInfo.key.pubKey,
+      //   symbol: mintData.ticker
+      // })
 
-    toastSubject.next({
-      status: 'success',
-      title: 'Token Initialized',
-      description: 'Token init successfully'
-    })
-    router.push(`/birthpad/token?mint=${mint}${referrerQuery}`)
+      const mintKp = Keypair.generate()
+      const mint = mintKp.publicKey.toBase58()
 
-    setIsOpen(false)
-    // } catch (e: any) {
-    //   toastSubject.next({
-    //     status: 'error',
-    //     title: 'Init Token Error',
-    //     description: e.message
-    //   })
-    // }
+      await createAndBuyAct({
+        ...mintData,
+        mint: mint,
+        uri: uri,
+        name: mintData.name,
+        symbol: mintData.ticker,
+        decimals: 6,
+        mintBInfo: configInfo.mintInfoB,
+        buyAmount: new BN(0),
+        configInfo: ToBirthPadConfig(configInfo.key),
+        configId: configInfo.key.pubKey,
+        slippage: new BN((useBirthpadStore.getState().slippage * 10000).toFixed(0)),
+        migrateType: mintData.migrateType || 'amm',
+        shareFeeReceiver: wallet,
+        mintKp: mintKp,
+        createOnly: true,
+        onConfirmed: () => {
+          router.push(`/token?mint=${mint}&fromCreate=true${referrerQuery}`)
+        }
+      })
+
+      // toastSubject.next({
+      //   status: 'success',
+      //   title: 'Token Initialized',
+      //   description: 'Token init successfully'
+      // })
+      // router.push(`/token?mint=${mint}${referrerQuery}`)
+
+      setIsOpen(false)
+    } catch (e: any) {
+      toastSubject.next({
+        status: 'error',
+        title: 'Init Token Error',
+        description: e.message
+      })
+    }
     offCreateLoading()
   }
 
@@ -220,7 +264,7 @@ export const InitialBuyDialog = ({ setIsOpen, configInfo, ...mintData }: DialogP
       >
         <Flex justifyContent="space-between" alignItems="center">
           <Text fontSize="xl" fontWeight="medium">
-            Initial Buy
+            Will You Initial Buy?
           </Text>
           <ModalCloseButton position="static" />
         </Flex>
@@ -246,9 +290,10 @@ export const InitialBuyDialog = ({ setIsOpen, configInfo, ...mintData }: DialogP
                 min={0}
                 // onChange={(e: React.ChangeEvent<HTMLInputElement>) => {}}
                 onValueChange={(data: { value: string; formattedValue: string }) => {
-                  setAmount(data.value)
-                  amountRef.current = data.value
-                  setOutAmount(handleAmountChange?.(data.value) ?? '')
+                  const value = data.value || ''
+                  setAmount(value)
+                  amountRef.current = value
+                  setOutAmount(handleAmountChange?.(value) ?? '')
                 }}
                 decimalSeparator={detectedSeparator}
                 thousandSeparator={thousandSeparator}
@@ -290,24 +335,24 @@ export const InitialBuyDialog = ({ setIsOpen, configInfo, ...mintData }: DialogP
             width="100%"
             height="3rem"
             lineHeight="24px"
-            isDisabled={isCreateLoading || !amount || new Decimal(amount || 0).lte(0)}
+            isDisabled={isCreateLoading || !amount || (amount ? new Decimal(amount).lte(0) : false)}
             isLoading={isLoading}
             loadingText="Buying..."
             onClick={handleClickBuy}
           >
-            Buy
+            Create & Buy
           </Button>
           <Button
             width="100%"
             height="3rem"
-            variant="ghost"
+            variant="outline"
             lineHeight="24px"
             isDisabled={isLoading}
             isLoading={isCreateLoading}
             loadingText="Creating..."
             onClick={handleClickInitOnly}
           >
-            Don&apos;t buy, just create token
+            Just Create
           </Button>
         </ModalFooter>
       </ModalContent>

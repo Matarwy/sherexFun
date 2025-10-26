@@ -1,21 +1,11 @@
-import { cloneElement, Fragment, ReactNode } from 'react'
 import {
-  Box,
-  Button,
-  Grid,
-  MenuDivider,
-  SystemStyleObject,
-  Text,
-  Menu,
-  MenuButton,
-  MenuList,
-  MenuGroup,
-  MenuItem,
-  PlacementWithLogical
+  Box, Button, Grid, Menu, MenuButton, MenuDivider, MenuGroup, MenuItem, MenuList, PlacementWithLogical, SystemStyleObject, Text
 } from '@chakra-ui/react'
-import { colors } from '@/theme/cssVariables/colors'
+import { cloneElement, Fragment, JSX, ReactNode } from 'react'
+
 import ChevronDownIcon from '@/icons/misc/ChevronDownIcon'
 import ChevronUpIcon from '@/icons/misc/ChevronUpIcon'
+import { colors } from '@/theme/cssVariables/colors'
 
 type MenuConfig<
   MenuItemValue extends string | number,

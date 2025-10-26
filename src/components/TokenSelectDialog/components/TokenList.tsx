@@ -71,7 +71,7 @@ export default forwardRef<
   const [displayList, setDisplayList] = useState<TokenInfo[]>([])
   const [search, setSearch] = useState('')
   const customTokenInfo = useRef<{ name?: string; symbol?: string }>({})
-  const listControllerRef = useRef<ListPropController>()
+  const listControllerRef = useRef<ListPropController | null>(null)
 
   useEffect(() => {
     listControllerRef.current?.resetRenderCount()

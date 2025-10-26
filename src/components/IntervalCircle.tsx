@@ -27,7 +27,7 @@ export default function IntervalCircle({
   /**
    * when this props change, restartCircle manually
    */
-  componentRef?: RefObject<IntervalCircleHandler>
+  componentRef?: React.RefObject<IntervalCircleHandler | null>
   initPercent?: number
   className?: string
   duration?: number

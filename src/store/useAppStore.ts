@@ -1,10 +1,12 @@
+'use client'
+
 import {
-  ALL_PROGRAM_ID, API_URL_CONFIG, API_URLS, AvailabilityCheckAPI3, DEV_LAUNCHPAD_AUTH, DEV_LAUNCHPAD_PROGRAM, JupTokenType, ProgramIdConfig,
-  Raydium, RaydiumLoadParams, TokenInfo, TxVersion
+  ALL_PROGRAM_ID, API_URLS, AvailabilityCheckAPI3, DEV_LAUNCHPAD_PROGRAM, JupTokenType, ProgramIdConfig, Raydium, TokenInfo, TxVersion
 } from '@raydium-io/raydium-sdk-v2'
 import { WalletAdapterNetwork } from '@solana/wallet-adapter-base'
-import { Wallet } from '@solana/wallet-adapter-react'
-import { clusterApiUrl, Commitment, Connection, EpochInfo, PublicKey, Transaction, VersionedTransaction } from '@solana/web3.js'
+import type { Wallet } from '@solana/wallet-adapter-react'
+import type { Commitment, EpochInfo } from '@solana/web3.js'
+import { Connection, PublicKey, Transaction, VersionedTransaction } from '@solana/web3.js'
 import { compare } from 'compare-versions'
 
 import axios from '@/api/axios'
@@ -17,36 +19,28 @@ import { SHEREX } from './configs/market'
 import createStore from './createStore'
 import { blackJupMintSet, useTokenStore } from './useTokenStore'
 
-export const defaultNetWork = WalletAdapterNetwork.Mainnet // Can be set to 'devnet', 'testnet', or 'mainnet-beta'
-// export const defaultEndpoint = clusterApiUrl(defaultNetWork) //'https://api.mainnet-beta.solana.com'  You can also provide a custom RPC endpoint
+/* ----------------------------- constants -------------------------------- */
+
+export const defaultNetWork = WalletAdapterNetwork.Mainnet
 export const defaultEndpoint = 'https://mainnet.helius-rpc.com/?api-key=dda3811c-eff2-4298-94d3-f3f868acbeac'
+
 export const APR_MODE_KEY = '_sherex_apr_'
 export const EXPLORER_KEY = '_sherex_explorer_'
+
 export const supportedExplorers = [
-  {
-    name: 'Solscan',
-    icon: '/images/explorer-solscan.png',
-    host: 'https://solscan.io'
-  },
-  {
-    name: 'Explorer',
-    icon: '/images/explorer-solana.png',
-    host: 'https://explorer.solana.com'
-  },
-  {
-    name: 'SolanaFM',
-    icon: '/images/explorer-solanaFM.png',
-    host: 'https://solana.fm'
-  }
+  { name: 'Solscan', icon: '/images/explorer-solscan.png', host: 'https://solscan.io' },
+  { name: 'Explorer', icon: '/images/explorer-solana.png', host: 'https://explorer.solana.com' },
+  { name: 'SolanaFM', icon: '/images/explorer-solanaFM.png', host: 'https://solana.fm' }
 ]
 
 const RPC_URL_KEY = '_sherex_rpc_dev_'
 const RPC_URL_PROD_KEY = '_sherex_rpc_prod_'
-let isRpcLoading = false
+
 export const FEE_KEY = '_sherex_fee_'
 export const PRIORITY_LEVEL_KEY = '_sherex_fee_level_'
 export const PRIORITY_MODE_KEY = '_sherex_fee_mode_'
 export const USER_ADDED_KEY = '_sherex_u_added_'
+
 export enum PriorityLevel {
   Fast,
   Turbo,
@@ -57,6 +51,8 @@ export enum PriorityMode {
   Exact
 }
 
+/* ------------------------------- types ---------------------------------- */
+
 interface RpcItem {
   url: string
   ws?: string
@@ -65,11 +61,22 @@ interface RpcItem {
   name: string
 }
 
-interface AppState {
-  raydium?: Raydium
+type SignAll = <T extends Transaction | VersionedTransaction>(transactions: T[]) => Promise<T[]>
+
+interface InitPayload {
+  owner?: PublicKey
   connection?: Connection
-  signAllTransactions?: (<T extends Transaction | VersionedTransaction>(transaction: T[]) => Promise<T[]>) | undefined
-  publicKey?: PublicKey
+  walletAdapter?: any
+  signAllTransactions?: SignAll
+}
+
+interface AppState {
+  raydium: Raydium | null
+  connection: Connection | null
+  walletAdapter?: any
+  signAllTransactions?: SignAll
+  publicKey: PublicKey | null
+
   explorerUrl: string
   isMobile: boolean
   isDesktop: boolean
@@ -84,12 +91,8 @@ interface AppState {
   rpcNodeUrl?: string
   wsNodeUrl?: string
   rpcs: RpcItem[]
-  urlConfigs: typeof API_URLS & {
-    SWAP_HOST: string
-    SWAP_COMPUTE: string
-    SWAP_TX: string
-  }
-  programIdConfig: typeof ALL_PROGRAM_ID
+  urlConfigs: typeof API_URLS & { SWAP_HOST: string; SWAP_COMPUTE: string; SWAP_TX: string }
+  programIdConfig: { LAUNCHPAD_PROGRAM: PublicKey }
 
   jupTokenType: JupTokenType
   displayTokenSettings: { official: boolean; jup: boolean; userAdded: boolean }
@@ -110,20 +113,43 @@ interface AppState {
 
   getPriorityFee: () => string | undefined
   getEpochInfo: () => Promise<EpochInfo | undefined>
-  initRaydiumAct: (payload: RaydiumLoadParams) => Promise<Raydium | undefined>
+
+  initRaydiumAct: (payload?: InitPayload) => Promise<Raydium | void>
   fetchChainTimeAct: () => void
   fetchRpcsAct: () => Promise<void>
   fetchBlockSlotCountAct: () => Promise<void>
-  setUrlConfigAct: (urls: API_URL_CONFIG) => void
+  setUrlConfigAct: (urls: any) => void
   setProgramIdConfigAct: (urls: ProgramIdConfig) => void
   setRpcUrlAct: (url: string, skipToast?: boolean, skipError?: boolean) => Promise<boolean>
   setAprModeAct: (mode: 'M' | 'D') => void
   checkAppVersionAct: () => Promise<void>
   fetchPriorityFeeAct: () => Promise<void>
+
+  reset: () => void
 }
 
-const appInitState = {
-  raydium: undefined,
+/* ------------------------- initial app state ---------------------------- */
+
+const appInitState: Omit<
+  AppState,
+  | 'getPriorityFee'
+  | 'getEpochInfo'
+  | 'initRaydiumAct'
+  | 'fetchChainTimeAct'
+  | 'fetchRpcsAct'
+  | 'fetchBlockSlotCountAct'
+  | 'setUrlConfigAct'
+  | 'setProgramIdConfigAct'
+  | 'setRpcUrlAct'
+  | 'setAprModeAct'
+  | 'checkAppVersionAct'
+  | 'fetchPriorityFeeAct'
+  | 'reset'
+> = {
+  raydium: null,
+  connection: null,
+  publicKey: null,
+
   initialing: false,
   connected: false,
   chainTimeOffset: 0,
@@ -131,25 +157,22 @@ const appInitState = {
   explorerUrl: supportedExplorers[0].host,
   isMobile: false,
   isDesktop: false,
-  aprMode: 'M' as 'M' | 'D',
+  aprMode: 'M',
   rpcs: [
-    // { url: 'https://api.mainnet-beta.solana.com', weight: 1, batch: true, name: 'Solana', ws: '' },
     {
       url: 'https://mainnet.helius-rpc.com/?api-key=dda3811c-eff2-4298-94d3-f3f868acbeac',
       weight: 1,
       batch: true,
       name: 'Helius',
-      ws: 'ws://mainnet.helius-rpc.com/?api-key=dda3811c-eff2-4298-94d3-f3f868acbeac'
+      ws: 'wss://mainnet.helius-rpc.com/?api-key=dda3811c-eff2-4298-94d3-f3f868acbeac'
     }
   ],
   rpcNodeUrl: 'https://mainnet.helius-rpc.com/?api-key=dda3811c-eff2-4298-94d3-f3f868acbeac',
-  wsNodeUrl: 'ws://mainnet.helius-rpc.com/?api-key=dda3811c-eff2-4298-94d3-f3f868acbeac',
+  wsNodeUrl: 'wss://mainnet.helius-rpc.com/?api-key=dda3811c-eff2-4298-94d3-f3f868acbeac',
   urlConfigs: API_URLS,
-  // programIdConfig: ALL_PROGRAM_ID,
   programIdConfig: {
     ...ALL_PROGRAM_ID,
     LAUNCHPAD_PROGRAM: new PublicKey(process.env.NEXT_PUBLIC_PLATFORM_ID || DEV_LAUNCHPAD_PROGRAM)
-    // BIRTHPAD_AUTH: DEV_LAUNCHPAD_AUTH
   },
   jupTokenType: JupTokenType.Strict,
   displayTokenSettings: {
@@ -157,21 +180,12 @@ const appInitState = {
     jup: true,
     userAdded: true
   },
-  featureDisabled: {
-    // swap: false,
-    // createConcentratedPosition: false,
-    // addConcentratedPosition: false,
-    // addStandardPosition: false,
-    // removeConcentratedPosition: false,
-    // removeStandardPosition: false,
-    // addFarm: false,
-    // removeFarm: false
-  },
+  featureDisabled: {},
   txVersion: TxVersion.LEGACY,
   appVersion: 'V3.0.2',
   needRefresh: false,
   tokenAccLoaded: false,
-  commitment: 'confirmed' as Commitment,
+  commitment: 'confirmed',
 
   priorityLevel: PriorityLevel.Turbo,
   priorityMode: PriorityMode.MaxCap,
@@ -179,113 +193,156 @@ const appInitState = {
   transactionFee: '0.01'
 }
 
+/* --------------------------- local caches ------------------------------- */
+
 let rpcLoading = false
-let epochInfoCache = {
-  time: 0,
-  loading: false
+let epochInfoCache = { time: 0, loading: false }
+let isRpcValidating = false
+
+/* --------------------------- helper utils ------------------------------- */
+
+function inferClusterFromRpc(url?: string): 'mainnet' | 'devnet' {
+  if (!url) return 'mainnet'
+  if (url.includes('devnet') || url.includes('api.devnet')) return 'devnet'
+  return 'mainnet'
 }
+
+/* --------------------------- the zustand store --------------------------- */
 
 export const useAppStore = createStore<AppState>(
   (set, get) => ({
     ...appInitState,
-    initRaydiumAct: async (payload) => {
+
+    initRaydiumAct: async (payload: InitPayload = {}) => {
       const action = { type: 'initRaydiumAct' }
       const { initialing, urlConfigs, rpcNodeUrl, jupTokenType, displayTokenSettings } = get()
-      if (initialing || !rpcNodeUrl) return
-      const connection = payload.connection || new Connection(rpcNodeUrl)
+      if (initialing) return
+
+      // Ensure connection exists
+      const connection = payload.connection ?? (rpcNodeUrl ? new Connection(rpcNodeUrl) : null)
+      if (!connection) {
+        toastSubject.next({ status: 'error', title: 'Init Error', description: 'No RPC connection' })
+        return
+      }
+      if (!get().connection) set({ connection }, false, action)
+
       set({ initialing: true }, false, action)
-      const isDev = window.location.host === 'localhost:3002'
 
-      const raydium = await Raydium.load({
-        ...payload,
-        connection,
-        urlConfigs: {
-          ...urlConfigs,
-          BASE_HOST: !isProdEnv() ? getStorageItem('_sherex_api_host_') || urlConfigs.BASE_HOST : urlConfigs.BASE_HOST
-        },
-        jupTokenType,
-        logRequests: !isDev,
-        disableFeatureCheck: true,
-        loopMultiTxStatus: true,
-        blockhashCommitment: 'finalized',
-        cluster: 'mainnet', //connection.rpcEndpoint === clusterApiUrl('devnet') ? 'devnet' : 'mainnet',
-        apiRequestTimeout: 20 * 1000
-      })
-      useTokenStore.getState().extraLoadedTokenList.forEach((t) => {
-        const existed = raydium.token.tokenMap.has(t.address)
-        if (!existed) {
-          raydium.token.tokenList.push(t)
-          raydium.token.tokenMap.set(t.address, t)
-          raydium.token.mintGroup.official.add(t.address)
-        }
-      })
-      const tokenMap = new Map(Array.from(raydium.token.tokenMap))
-      const tokenList = (JSON.parse(JSON.stringify(raydium.token.tokenList)) as TokenInfo[])
-        .filter((t) => {
-          if (blackJupMintSet.has(t.address)) {
-            tokenMap.delete(t.address)
-            raydium.token.tokenMap.delete(t.address)
-            raydium.token.mintGroup.jup.delete(t.address)
-            return false
-          }
-          return true
+      const cluster = inferClusterFromRpc(connection.rpcEndpoint)
+      const isDevLocal = typeof window !== 'undefined' && window.location?.host?.startsWith('localhost')
+
+      try {
+        const raydium = await Raydium.load({
+          connection,
+          owner: payload.owner ?? get().publicKey ?? undefined,
+          // walletAdapter: payload.walletAdapter ?? get().walletAdapter,
+          signAllTransactions: payload.signAllTransactions ?? get().signAllTransactions,
+          urlConfigs: {
+            ...urlConfigs,
+            BASE_HOST: !isProdEnv() ? getStorageItem('_sherex_api_host_') || urlConfigs.BASE_HOST : urlConfigs.BASE_HOST
+          },
+          jupTokenType,
+          logRequests: !isDevLocal,
+          disableFeatureCheck: true,
+          loopMultiTxStatus: true,
+          blockhashCommitment: 'finalized',
+          cluster, // 'mainnet' | 'devnet'
+          apiRequestTimeout: 20 * 1000
         })
-        .map((t) => {
-          if (t.type === 'jupiter') {
-            try {
-              // const uri: any = await getTokenMetadataURL(connection, t.address)
-              const newInfo = { ...t, logoURI: t.logoURI ? 'uri' : t.logoURI }
-              tokenMap.set(t.address, newInfo)
-              return newInfo
-            } catch (error) {
-              console.warn('Failed to get token metadata for', t.address, error)
-              return t
+
+        // Merge extra token(s)
+        useTokenStore.getState().extraLoadedTokenList.forEach((t) => {
+          const existed = raydium.token.tokenMap.has(t.address)
+          if (!existed) {
+            raydium.token.tokenList.push(t)
+            raydium.token.tokenMap.set(t.address, t)
+            raydium.token.mintGroup.official.add(t.address)
+          }
+        })
+
+        // Clean up blacklisted JUP mints & optionally rewrite logos
+        const tokenMap = new Map(Array.from(raydium.token.tokenMap))
+        const tokenList = (JSON.parse(JSON.stringify(raydium.token.tokenList)) as TokenInfo[])
+          .filter((t) => {
+            if (blackJupMintSet.has(t.address)) {
+              tokenMap.delete(t.address)
+              raydium.token.tokenMap.delete(t.address)
+              raydium.token.mintGroup.jup.delete(t.address)
+              return false
             }
-          }
-          return t
-        })
-      useTokenStore.setState(
-        {
-          tokenList: [SHEREX, ...tokenList],
-          displayTokenList: tokenList
-            .filter((token) => {
-              return (
-                (displayTokenSettings.official && raydium.token.mintGroup.official.has(token.address)) ||
-                (displayTokenSettings.jup && raydium.token.mintGroup.jup.has(token.address))
-              )
-            })
-            .concat([SHEREX]),
-          tokenMap: tokenMap.set(SHEREX.address, SHEREX),
-          mintGroup: raydium.token.mintGroup,
-          whiteListMap: new Set(Array.from(raydium.token.whiteListMap))
-        },
-        false,
-        action
-      )
-      set({ raydium, initialing: false, connected: !!(payload.owner || get().publicKey) }, false, action)
-      set(
-        {
-          featureDisabled: {
-            swap: raydium.availability.swap === false,
-            createConcentratedPosition: raydium.availability.createConcentratedPosition === false,
-            addConcentratedPosition: raydium.availability.addConcentratedPosition === false,
-            addStandardPosition: raydium.availability.addStandardPosition === false,
-            removeConcentratedPosition: raydium.availability.removeConcentratedPosition === false,
-            removeStandardPosition: raydium.availability.removeStandardPosition === false,
-            addFarm: raydium.availability.addFarm === false,
-            removeFarm: raydium.availability.removeFarm === false
-          }
-        },
-        false,
-        action
-      )
+            return true
+          })
+          .map((t) => {
+            if (t.type === 'jupiter') {
+              try {
+                const newInfo = { ...t, logoURI: t.logoURI ? t.logoURI : '' }
+                tokenMap.set(t.address, newInfo)
+                return newInfo
+              } catch {
+                return t
+              }
+            }
+            return t
+          })
 
-      setTimeout(() => {
-        get().fetchChainTimeAct()
-      }, 1000)
+        useTokenStore.setState(
+          {
+            tokenList: [SHEREX, ...tokenList],
+            displayTokenList: tokenList
+              .filter((token) => {
+                return (
+                  (displayTokenSettings.official && raydium.token.mintGroup.official.has(token.address)) ||
+                  (displayTokenSettings.jup && raydium.token.mintGroup.jup.has(token.address))
+                )
+              })
+              .concat([SHEREX]),
+            tokenMap: tokenMap.set(SHEREX.address, SHEREX),
+            mintGroup: raydium.token.mintGroup,
+            whiteListMap: new Set(Array.from(raydium.token.whiteListMap))
+          },
+          false,
+          action
+        )
 
-      return raydium
+        set(
+          {
+            raydium,
+            initialing: false,
+            connected: !!(payload.owner || get().publicKey)
+          },
+          false,
+          action
+        )
+
+        // Availability toggles
+        set(
+          {
+            featureDisabled: {
+              swap: raydium.availability.swap === false,
+              createConcentratedPosition: raydium.availability.createConcentratedPosition === false,
+              addConcentratedPosition: raydium.availability.addConcentratedPosition === false,
+              addStandardPosition: raydium.availability.addStandardPosition === false,
+              removeConcentratedPosition: raydium.availability.removeConcentratedPosition === false,
+              removeStandardPosition: raydium.availability.removeStandardPosition === false,
+              addFarm: raydium.availability.addFarm === false,
+              removeFarm: raydium.availability.removeFarm === false
+            }
+          },
+          false,
+          action
+        )
+
+        setTimeout(() => get().fetchChainTimeAct(), 1000)
+
+        console.log('[AppStore] Raydium initialized (cluster:', cluster, ')')
+        return raydium
+      } catch (e: any) {
+        console.error('[AppStore] Raydium init failed:', e)
+        set({ initialing: false }, false, action)
+        toastSubject.next({ status: 'error', title: 'Raydium init failed', description: e?.message ?? 'Unknown error' })
+      }
     },
+
     fetchChainTimeAct: () => {
       const { urlConfigs } = get()
       axios
@@ -293,13 +350,12 @@ export const useAppStore = createStore<AppState>(
         .then((data) => {
           set({ chainTimeOffset: isNaN(data?.data.offset) ? 0 : data.data.offset * 1000 }, false, { type: 'fetchChainTimeAct' })
         })
-        .catch(() => {
-          set({ chainTimeOffset: 0 }, false, { type: 'fetchChainTimeAct' })
-        })
+        .catch(() => set({ chainTimeOffset: 0 }, false, { type: 'fetchChainTimeAct' }))
     },
+
     fetchBlockSlotCountAct: async () => {
-      const { raydium, connection } = get()
-      if (!raydium || !connection) return
+      const { connection } = get()
+      if (!connection) return
       const res: {
         id: string
         jsonrpc: string
@@ -310,128 +366,111 @@ export const useAppStore = createStore<AppState>(
         method: 'getRecentPerformanceSamples',
         params: [4]
       })
-      const slotList = res.result.map((data) => data.numSlots)
+      const slotList = res.result.map((d) => d.numSlots)
       set({ blockSlotCountForSecond: slotList.reduce((a, b) => a + b, 0) / slotList.length / 60 }, false, {
         type: 'fetchBlockSlotCountAct'
       })
     },
+
     setUrlConfigAct: (urls) => {
       set({ urlConfigs: { ...get().urlConfigs, ...urls } }, false, { type: 'setUrlConfigAct' })
     },
+
     setProgramIdConfigAct: (urls) => {
       set({ programIdConfig: { ...get().programIdConfig, ...urls } }, false, { type: 'setProgramIdConfigAct' })
     },
+
     fetchRpcsAct: async () => {
       const { urlConfigs, setRpcUrlAct } = get()
       if (rpcLoading) return
       rpcLoading = true
       try {
-        const {
-          data: { rpcs }
-        } = await axios.get<{ rpcs: RpcItem[] }>(urlConfigs.BASE_HOST + urlConfigs.RPCS)
+        const { data } = await axios.get<{ rpcs: RpcItem[] }>(urlConfigs.BASE_HOST + urlConfigs.RPCS)
+        const rpcs = data.rpcs || []
         set({ rpcs }, false, { type: 'fetchRpcsAct' })
+
         const localRpcNode: { rpcNode?: RpcItem; url?: string } = JSON.parse(
           getStorageItem(isProdEnv() ? RPC_URL_PROD_KEY : RPC_URL_KEY) || '{}'
         )
 
         let i = 0
-        const checkAndSetRpcNode = async () => {
-          const readyRpcs = [...rpcs]
-          if (localRpcNode?.rpcNode) readyRpcs.sort((a, b) => (a.name === localRpcNode.rpcNode!.name ? -1 : 1))
-          const success = await setRpcUrlAct(readyRpcs[i].url, true, i !== readyRpcs.length - 1)
-          if (!success) {
+        const trySet = async () => {
+          const ready = [...rpcs]
+          if (localRpcNode?.rpcNode) ready.sort((a, b) => (a.name === localRpcNode.rpcNode!.name ? -1 : 1))
+          const ok = await setRpcUrlAct(ready[i].url, true, i !== ready.length - 1)
+          if (!ok) {
             i++
-            if (i < readyRpcs.length) {
-              checkAndSetRpcNode()
-            } else {
-              console.error('All RPCs failed.')
-            }
+            if (i < ready.length) trySet()
+            else console.error('All RPCs failed.')
           }
         }
 
         if (localRpcNode && !localRpcNode.rpcNode && isValidUrl(localRpcNode.url)) {
-          const success = await setRpcUrlAct(localRpcNode.url!, true, true)
-          if (!success) checkAndSetRpcNode()
+          const ok = await setRpcUrlAct(localRpcNode.url!, true, true)
+          if (!ok) trySet()
         } else {
-          checkAndSetRpcNode()
+          trySet()
         }
       } finally {
         rpcLoading = false
       }
     },
+
     setRpcUrlAct: async (url, skipToast, skipError) => {
       if (url === get().rpcNodeUrl) {
-        toastSubject.next({
-          status: 'info',
-          title: 'Switch Rpc Node',
-          description: 'Rpc node already in use'
-        })
+        if (!skipToast) {
+          toastSubject.next({ status: 'info', title: 'Switch Rpc Node', description: 'Rpc node already in use' })
+        }
         return true
       }
       try {
         if (!isValidUrl(url)) throw new Error('invalid url')
-        if (isRpcLoading) {
-          toastSubject.next({
-            status: 'warning',
-            title: 'Switch Rpc Node',
-            description: 'Validating Rpc node..'
-          })
+        if (isRpcValidating) {
+          if (!skipToast) {
+            toastSubject.next({ status: 'warning', title: 'Switch Rpc Node', description: 'Validating Rpc node..' })
+          }
           return false
         }
-        isRpcLoading = true
+        isRpcValidating = true
+
         await retry<Promise<EpochInfo>>(() => axios.post(url, { method: 'getEpochInfo' }, { skipError: true }), {
           retryCount: 3,
-          onError: () => (isRpcLoading = false)
+          onError: () => (isRpcValidating = false)
         })
-        isRpcLoading = false
+
+        isRpcValidating = false
         const rpcNode = get().rpcs.find((r) => r.url === url)
         set({ rpcNodeUrl: url, wsNodeUrl: rpcNode?.ws, tokenAccLoaded: false }, false, { type: 'setRpcUrlAct' })
+
         setStorageItem(
           isProdEnv() ? RPC_URL_PROD_KEY : RPC_URL_KEY,
-          JSON.stringify({
-            rpcNode: rpcNode ? { ...rpcNode, url: '' } : undefined,
-            url
-          })
+          JSON.stringify({ rpcNode: rpcNode ? { ...rpcNode, url: '' } : undefined, url })
         )
-        if (!skipToast)
-          toastSubject.next({
-            status: 'success',
-            title: 'Switch Rpc Node Success',
-            description: 'Rpc node switched'
-          })
+
+        if (!skipToast) toastSubject.next({ status: 'success', title: 'Switch Rpc Node Success', description: 'Rpc node switched' })
         return true
       } catch {
-        if (!skipError)
-          toastSubject.next({
-            status: 'error',
-            title: 'Switch Rpc Node error',
-            description: 'Invalid rpc node'
-          })
+        if (!skipError) toastSubject.next({ status: 'error', title: 'Switch Rpc Node error', description: 'Invalid rpc node' })
         return false
       }
     },
+
     setAprModeAct: (mode) => {
       setStorageItem(APR_MODE_KEY, mode)
       set({ aprMode: mode })
     },
+
     checkAppVersionAct: async () => {
       const { urlConfigs, appVersion } = get()
-      const res = await axios.get<{
-        latest: string
-        least: string
-      }>(`${urlConfigs.BASE_HOST}${urlConfigs.VERSION}`)
+      const res = await axios.get<{ latest: string; least: string }>(`${urlConfigs.BASE_HOST}${urlConfigs.VERSION}`)
       set({ needRefresh: compare(appVersion, res.data.latest, '<') })
     },
 
     fetchPriorityFeeAct: async () => {
       const { urlConfigs } = get()
-      const { data } = await axios.get<{
-        default: {
-          h: number
-          m: number
-          vh: number
-        }
-      }>(`${urlConfigs.BASE_HOST}${urlConfigs.PRIORITY_FEE}`)
+      const { data } = await axios.get<{ default: { h: number; m: number; vh: number } }>(
+        `${urlConfigs.BASE_HOST}${urlConfigs.PRIORITY_FEE}`
+      )
       set({
         feeConfig: {
           [PriorityLevel.Fast]: data.default.m / 10 ** 9,
@@ -444,21 +483,26 @@ export const useAppStore = createStore<AppState>(
     getPriorityFee: () => {
       const { priorityMode, priorityLevel, transactionFee, feeConfig } = get()
       if (priorityMode === PriorityMode.Exact) return transactionFee ? String(transactionFee) : transactionFee
-      if (feeConfig[priorityLevel] === undefined || transactionFee === undefined) return String(feeConfig[PriorityLevel.Turbo] ?? 0)
+      if (feeConfig[priorityLevel] === undefined || transactionFee === undefined) {
+        return String(feeConfig[PriorityLevel.Turbo] ?? 0)
+      }
       return String(Math.min(Number(transactionFee), feeConfig[priorityLevel]!))
     },
 
     getEpochInfo: async () => {
-      const [connection, epochInfo] = [get().connection, get().epochInfo]
+      const connection = get().connection
+      const epochInfo = get().epochInfo
       if (!connection) return undefined
       if (epochInfo && Date.now() - epochInfoCache.time <= 30 * 1000) return epochInfo
       if (epochInfoCache.loading) return epochInfo
+
       epochInfoCache.loading = true
       const newEpochInfo = await retry<Promise<EpochInfo>>(() => connection.getEpochInfo())
       epochInfoCache = { time: Date.now(), loading: false }
       set({ epochInfo: newEpochInfo }, false, { type: 'useAppStore.getEpochInfo' })
       return newEpochInfo
     },
+
     reset: () => set(appInitState)
   }),
   'useAppStore'

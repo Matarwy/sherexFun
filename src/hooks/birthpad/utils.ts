@@ -1,9 +1,11 @@
 import { LaunchpadConfigInfo } from '@raydium-io/raydium-sdk-v2'
-import { Comment } from './type'
+import { PublicKey } from '@solana/web3.js'
+import { BN } from 'bn.js'
+
 import { MintInfo } from '@/features/Birthpad/type'
 import ToPublicKey from '@/utils/publicKey'
-import { BN } from 'bn.js'
-import { PublicKey } from '@solana/web3.js'
+
+import { Comment } from './type'
 
 export const mergeComments = (comments: Comment[][], sort?: boolean) => {
   const combinedData: Comment[] = []
@@ -20,7 +22,7 @@ export const mergeComments = (comments: Comment[][], sort?: boolean) => {
   return combinedData.sort((a, b) => b.createAt - a.createAt)
 }
 
-export function ToLaunchpadConfig(configInfo: MintInfo['configInfo']): LaunchpadConfigInfo {
+export function ToBirthPadConfig(configInfo: MintInfo['configInfo']): LaunchpadConfigInfo {
   return {
     index: configInfo.index,
     epoch: new BN(configInfo.epoch),

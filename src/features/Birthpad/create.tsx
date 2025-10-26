@@ -20,7 +20,7 @@ import { LocalStorageKey } from '@/constants/localStorage'
 import useConfigs, { ConfigApiData } from '@/hooks/birthpad/useConfigs'
 import { usePlatformInfo } from '@/hooks/birthpad/usePlatformInfo'
 import useWalletSign from '@/hooks/birthpad/useWalletSign'
-import { ToLaunchpadConfig } from '@/hooks/birthpad/utils'
+import { ToBirthPadConfig } from '@/hooks/birthpad/utils'
 import { toastSubject } from '@/hooks/toast/useGlobalToast'
 import { useDisclosure } from '@/hooks/useDelayDisclosure'
 import { useLocalStorage } from '@/hooks/useLocalStorage'
@@ -812,7 +812,7 @@ const BirthPadForm = () => {
             totalSell: c,
             totalLockedAmount,
             decimals: decimalA,
-            config: ToLaunchpadConfig(configInfo.key),
+            config: ToBirthPadConfig(configInfo.key),
             migrateType
           })
           console.log('check init params success')
