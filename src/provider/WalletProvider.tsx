@@ -1,3 +1,4 @@
+'use client'
 import { registerMoonGateWallet } from '@moongate/moongate-adapter'
 import { type Adapter, WalletAdapterNetwork, type WalletError } from '@solana/wallet-adapter-base'
 import { ExodusWalletAdapter } from '@solana/wallet-adapter-exodus'
@@ -30,24 +31,24 @@ const App: FC<PropsWithChildren<any>> = ({ children }) => {
   // const [endpoint] = useState<string>(defaultEndpoint)
   const [endpoint, setEndpoint] = useState<string>(rpcNodeUrl || defaultEndpoint)
 
-  registerMoonGateWallet({
-    authMode: 'Ethereum',
-    position: 'top-right'
-    // logoDataUri: 'OPTIONAL ADD IN-WALLET LOGO URL HERE',
-    // buttonLogoUri: 'ADD OPTIONAL LOGO FOR WIDGET BUTTON HERE'
-  })
+  // registerMoonGateWallet({
+  //   authMode: 'Ethereum',
+  //   position: 'top-right'
+  //   // logoDataUri: 'OPTIONAL ADD IN-WALLET LOGO URL HERE',
+  //   // buttonLogoUri: 'ADD OPTIONAL LOGO FOR WIDGET BUTTON HERE'
+  // })
   registerMoonGateWallet({
     authMode: 'Google',
     position: 'top-right'
     // logoDataUri: 'OPTIONAL ADD IN-WALLET LOGO URL HERE',
     // buttonLogoUri: 'ADD OPTIONAL LOGO FOR WIDGET BUTTON HERE'
   })
-  // registerMoonGateWallet({
-  //   authMode: 'Twitter',
-  //   position: 'top-right'
-  //   // logoDataUri: 'OPTIONAL ADD IN-WALLET LOGO URL HERE',
-  //   // buttonLogoUri: 'ADD OPTIONAL LOGO FOR WIDGET BUTTON HERE'
-  // })
+  registerMoonGateWallet({
+    authMode: 'Twitter',
+    position: 'top-right'
+    // logoDataUri: 'OPTIONAL ADD IN-WALLET LOGO URL HERE',
+    // buttonLogoUri: 'ADD OPTIONAL LOGO FOR WIDGET BUTTON HERE'
+  })
   registerMoonGateWallet({
     authMode: 'Apple',
     position: 'top-right'
