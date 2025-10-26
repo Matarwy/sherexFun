@@ -7,9 +7,9 @@ import { useTranslation } from 'react-i18next'
 import { Subject } from 'rxjs'
 
 import axiosInstance from '@/api/axios'
+import * as TradingView from '@/charting_library'
 import { MintInfo } from '@/features/Birthpad/type'
 import { useAppStore, useBirthpadStore, useTradingViewStore } from '@/store'
-import { Bar, ChartPropertiesOverrides, EntityId, ResolutionString, Timezone, TradingTerminalWidgetOptions } from '@/types/tradingview'
 import { formatCurrency } from '@/utils/numberish/formatter'
 
 import Datafeed from './datafeed'
@@ -21,12 +21,6 @@ import { getSavedResolution } from './utils'
 
 export const refreshChartSubject = new Subject<string>()
 const isIFrame = (element: HTMLElement | null): element is HTMLIFrameElement => element !== null && element.tagName === 'IFRAME'
-
-declare global {
-  interface Window {
-    TradingView?: any
-  }
-}
 
 export default function TVChart({
   poolId,
@@ -105,17 +99,8 @@ export default function TVChart({
   useEffect(() => {
     if (!connection || !poolId) return
 
-    // Wait until the charting library is loaded on window
-    const waitForTV = (cb: () => void) => {
-      if (typeof window === 'undefined' || !(window as any).TradingView) {
-        setTimeout(() => waitForTV(cb), 100)
-        return
-      }
-      cb()
-    }
-
     const overrides = {
-      timezone: Intl.DateTimeFormat().resolvedOptions().timeZone as Timezone,
+      timezone: Intl.DateTimeFormat().resolvedOptions().timeZone as TradingView.Timezone,
       'paneProperties.background': theme.layer0,
       'paneProperties.horzGridProperties.color': theme.layer1,
       'paneProperties.vertGridProperties.color': theme.layer1,
@@ -156,7 +141,7 @@ export default function TVChart({
       'chartEventsSourceProperties.breaks.visible': false,
 
       volumePaneSize: 'small'
-    } as Partial<ChartPropertiesOverrides>
+    } as Partial<TradingView.ChartPropertiesOverrides>
 
     const studies_overrides = {
       'volume.volume.color.0': theme.negative,
@@ -168,12 +153,12 @@ export default function TVChart({
 
     const ChartDataFeed = birdeye ? DatafeedBirdeye : Datafeed
     const resolutionSupported =
-      savedResolution && ChartDataFeed.configurationData.supported_resolutions.indexOf(savedResolution as ResolutionString) > -1
+      savedResolution && ChartDataFeed.configurationData.supported_resolutions.indexOf(savedResolution as TradingView.ResolutionString) > -1
 
-    const options: TradingTerminalWidgetOptions = {
+    const options: TradingView.TradingTerminalWidgetOptions = {
       // debug: true,
       container: id,
-      library_path: '/charting_library/',
+      library_path: '/charting_library/charting_library',
       custom_css_url: '/tradingview.css',
       autosize: true,
       disabled_features: [
@@ -210,7 +195,7 @@ export default function TVChart({
       symbol: poolId, // Default symbol
 
       datafeed: new ChartDataFeed({ connection, mintInfo, mintBInfo, curveType }),
-      interval: (resolutionSupported ? savedResolution : birdeye ? '15' : '5') as ResolutionString,
+      interval: (resolutionSupported ? savedResolution : birdeye ? '15' : '5') as TradingView.ResolutionString,
       locale: 'en',
       // numeric_formatting: { decimal_sign: '.', grouping_separator: '.' },
       saved_data: !isEmpty(savedTvChartConfig) ? savedTvChartConfig : undefined,
@@ -243,20 +228,10 @@ export default function TVChart({
       auto_save_delay: 1
     }
 
-    // Ensure the container has a real height at mount
-    const el = document.getElementById(id)
-    if (el) {
-      const rect = el.getBoundingClientRect()
-      if (rect.height === 0) (el as HTMLElement).style.minHeight = typeof height === 'string' ? height : `${height}px`
-    }
-
-    let tvChartWidget: any
-    waitForTV(() => {
-      tvChartWidget = new (window as any).TradingView.widget(options)
-    })
+    const tvChartWidget = new TradingView.widget(options)
 
     let lastInterval = 0
-    let lastEntityId: EntityId
+    let lastEntityId: TradingView.EntityId
     let mCapButton: null | HTMLElement
 
     // landed launchpad
@@ -333,7 +308,7 @@ export default function TVChart({
         tvChartWidget.applyOverrides(overrides)
         tvChartWidget.applyStudiesOverrides(studies_overrides)
 
-        const volumeStudyId = chartIns.getAllStudies().find((x: { name?: string; id?: any }) => x.name === 'Volume')?.id
+        const volumeStudyId = chartIns.getAllStudies().find((x) => x.name === 'Volume')?.id
         if (volumeStudyId) {
           const volume = chartIns.getStudyById(volumeStudyId)
           volume.applyOverrides({
@@ -361,7 +336,7 @@ export default function TVChart({
         //   })
         // }
 
-        setArrowListener(async (prev: Bar, next: Bar) => {
+        setArrowListener(async (prev: TradingView.Bar, next: TradingView.Bar) => {
           window.clearInterval(lastInterval)
           lastEntityId && chartIns.removeEntity(lastEntityId)
           chartIns.removeAllShapes()
@@ -404,12 +379,10 @@ export default function TVChart({
     return () => {
       // if (onTickCbk) tvChartWidget.unsubscribe('onTick', onTickCbk)
       setArrowListener(undefined)
-      try {
-        tvChartWidget?.remove?.()
-      } catch {}
+      tvChartWidget.remove()
       clearInterval(lastInterval)
     }
-  }, [poolId, birdeye, id, theme, connection, reloadChartTag, mintInfo?.mint, mintBInfo?.address, curveType, height])
+  }, [poolId, birdeye, id, theme, connection, reloadChartTag, mintInfo?.mint, mintBInfo?.address, curveType])
 
   useEffect(() => {
     if (connection) {
@@ -417,5 +390,5 @@ export default function TVChart({
     }
   }, [connection])
 
-  return <Box id={id} height={height} minH={height} />
+  return <Box height={height} id={id} />
 }

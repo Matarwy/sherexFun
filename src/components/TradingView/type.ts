@@ -1,4 +1,6 @@
-import { LibrarySymbolInfo } from '@/types/tradingview'
+'use client'
+
+import { LibrarySymbolInfo } from '@/charting_library/charting_library.js'
 
 export interface SymbolInfo extends LibrarySymbolInfo {
   poolId: string

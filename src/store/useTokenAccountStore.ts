@@ -1,33 +1,25 @@
 import {
-  parseTokenAccountResp,
-  TokenAccount,
-  TokenAccountRaw,
-  WSOLMint,
-  splAccountLayout,
-  getATAAddress,
-  TxBuilder
+  getATAAddress, parseTokenAccountResp, splAccountLayout, TokenAccount, TokenAccountRaw, TxBuilder, WSOLMint
 } from '@raydium-io/raydium-sdk-v2'
-import { PublicKey, KeyedAccountInfo, Commitment, AccountInfo, RpcResponseAndContext, GetProgramAccountsResponse } from '@solana/web3.js'
 import {
-  TOKEN_PROGRAM_ID,
-  TOKEN_2022_PROGRAM_ID,
-  getAssociatedTokenAddressSync,
-  createAssociatedTokenAccountInstruction,
-  createCloseAccountInstruction,
-  createTransferInstruction
+  createAssociatedTokenAccountInstruction, createCloseAccountInstruction, createTransferInstruction, getAssociatedTokenAddressSync,
+  TOKEN_2022_PROGRAM_ID, TOKEN_PROGRAM_ID
 } from '@solana/spl-token'
+import { AccountInfo, Commitment, GetProgramAccountsResponse, KeyedAccountInfo, PublicKey, RpcResponseAndContext } from '@solana/web3.js'
+import BN from 'bn.js'
+import Decimal from 'decimal.js'
+
+import { toastSubject } from '@/hooks/toast/useGlobalToast'
+import { txStatusSubject } from '@/hooks/toast/useTxStatus'
+import { retry } from '@/utils/common'
+import logMessage from '@/utils/log'
 import { formatLocaleStr, trimTailingZero } from '@/utils/numberish/formatter'
+
+import { TxCallbackProps } from '../types/tx'
+
 import createStore from './createStore'
 import { useAppStore } from './useAppStore'
 import { useTokenStore } from './useTokenStore'
-import { toastSubject } from '@/hooks/toast/useGlobalToast'
-import { txStatusSubject } from '@/hooks/toast/useTxStatus'
-import { TxCallbackProps } from '../types/tx'
-import { retry } from '@/utils/common'
-
-import Decimal from 'decimal.js'
-import BN from 'bn.js'
-import logMessage from '@/utils/log'
 
 export interface TokenAccountStore {
   tokenAccounts: TokenAccount[]
@@ -318,11 +310,16 @@ export const useTokenAccountStore = createStore<TokenAccountStore>(
       }
     },
     migrateATAAct: async ({ migrateAccounts, ...txProps }) => {
-      const { connection, publicKey, signAllTransactions } = useAppStore.getState()
+      const { connection, publicKey, signAllTransactions, raydium } = useAppStore.getState()
       const tokenAccounts = get().tokenAccounts
       if (!connection || !publicKey || !signAllTransactions || !tokenAccounts.length) return
 
-      const txBuilder = new TxBuilder({ connection, cluster: 'mainnet', feePayer: publicKey, signAllTransactions })
+      const txBuilder = new TxBuilder({
+        connection: (raydium as any)?.connection ?? (connection as any),
+        cluster: 'mainnet',
+        feePayer: publicKey,
+        signAllTransactions: signAllTransactions as any
+      })
 
       migrateAccounts.forEach((tokenAcc) => {
         if (!tokenAcc.publicKey) return
@@ -357,7 +354,7 @@ export const useTokenAccountStore = createStore<TokenAccountStore>(
         .build()
         .execute()
         .then(({ txId, signedTx }) => {
-          txStatusSubject.next({ txId, signedTx })
+          txStatusSubject.next({ txId, signedTx: signedTx as any })
           txProps.onSent?.()
         })
         .catch((e) => {

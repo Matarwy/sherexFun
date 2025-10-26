@@ -1,6 +1,9 @@
 import { Box, Flex, Grid, GridItem, HStack, Link, Text, useDisclosure } from '@chakra-ui/react'
 import { ApiV3PoolInfoConcentratedItem, ApiV3PoolInfoItem, ApiV3PoolInfoStandardItem } from '@raydium-io/raydium-sdk-v2'
+import { PublicKey } from '@solana/web3.js'
+import Decimal from 'decimal.js'
 import { useEffect, useMemo, useRef, useState } from 'react'
+import { Trans, useTranslation } from 'react-i18next'
 import { v4 as uuidv4 } from 'uuid'
 
 import Steps, { StepsRef } from '@/components/Steps'
@@ -15,18 +18,16 @@ import { useAppStore, useClmmStore, useFarmStore } from '@/store'
 import { colors } from '@/theme/cssVariables'
 import { genCSS2GridTemplateColumns, genCSS3GridTemplateColumns } from '@/theme/detailConfig'
 import { WEEK_SECONDS } from '@/utils/date'
-import { routeBack, setUrlQuery } from '@/utils/routeTools'
+import { routeBack, setUrlQuery, useRouteQuery } from '@/utils/routeTools'
 import { RAY_TOKEN_INFO } from '@/utils/token'
-import { PublicKey } from '@solana/web3.js'
-import Decimal from 'decimal.js'
-import { useTranslation, Trans } from 'react-i18next'
+
 import { TxErrorModal } from '../../../components/Modal/TxErrorModal'
+
 import RewardAddItem from './components/AddRewards'
 import ReviewDetail from './components/DetailReview'
 import SelectPool from './components/SelectPool'
 import { TxSuccessModal } from './components/TxSuccessModal'
 import { NewRewardInfo } from './type'
-import { useRouteQuery } from '@/utils/routeTools'
 
 type QueryDetail = {
   step?: LiquidityFarmActionModeType
@@ -278,13 +279,10 @@ export default function CreateFarm() {
             description={
               <Text fontSize="sm" color={isMobile ? colors.textSecondary : colors.textTertiary}>
                 <Trans i18nKey="create_farm.note_des">
-                  <Link href="https://docs.raydium.io/raydium/pool-creation/creating-a-clmm-pool-and-farm" isExternal>
+                  <Link href="https://t.me/sherexcoin" isExternal>
                     CLMM
                   </Link>
-                  <Link
-                    href="https://docs.raydium.io/raydium/pool-creation/creating-a-standard-amm-pool/creating-an-ecosystem-farm"
-                    isExternal
-                  >
+                  <Link href="https://t.me/sherexcoin" isExternal>
                     Standard
                   </Link>
                 </Trans>

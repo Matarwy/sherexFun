@@ -1,34 +1,14 @@
-import { Desktop, Mobile } from '@/components/MobileDesktop'
-import CircleCheck from '@/icons/misc/CircleCheck'
-import { colors } from '@/theme/cssVariables'
 import {
-  Badge,
-  Box,
-  Button,
-  Drawer,
-  DrawerBody,
-  DrawerCloseButton,
-  DrawerContent,
-  DrawerFooter,
-  DrawerHeader,
-  DrawerOverlay,
-  Flex,
-  HStack,
-  Link,
-  Modal,
-  ModalBody,
-  ModalCloseButton,
-  ModalContent,
-  ModalFooter,
-  ModalHeader,
-  ModalOverlay,
-  Stack,
-  Text,
-  VStack
+  Badge, Box, Button, Drawer, DrawerBody, DrawerCloseButton, DrawerContent, DrawerFooter, DrawerHeader, DrawerOverlay, Flex, HStack, Link,
+  Modal, ModalBody, ModalCloseButton, ModalContent, ModalFooter, ModalHeader, ModalOverlay, Stack, Text, VStack
 } from '@chakra-ui/react'
 import { useRouter } from 'next/router'
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { useTranslation, Trans } from 'react-i18next'
+import { Trans, useTranslation } from 'react-i18next'
+
+import { Desktop, Mobile } from '@/components/MobileDesktop'
+import CircleCheck from '@/icons/misc/CircleCheck'
+import { colors } from '@/theme/cssVariables'
 
 type CreateTarget = 'legacy-amm' | 'standard-amm' | 'concentrated-liquidity' | 'standard-farm' | 'clmm-lock' | 'cpmm-lock'
 
@@ -171,10 +151,10 @@ export function CreatePoolEntryDialogBody({ type, onChange }: { type: CreateTarg
         description={
           isCreatePool ? (
             <Trans i18nKey="create_pool.modal_section_header_pool_desc">
-              <Link href="https://docs.raydium.io/raydium/pool-creation/creating-a-clmm-pool-and-farm" isExternal>
+              <Link href="https://t.me/sherexcoin" isExternal>
                 CLMM
               </Link>
-              <Link href="https://docs.raydium.io/raydium/pool-creation/creating-a-standard-amm-pool" isExternal>
+              <Link href="https://t.me/sherexcoin" isExternal>
                 Standard
               </Link>
             </Trans>
@@ -236,10 +216,10 @@ export function CreatePoolEntryDialogBody({ type, onChange }: { type: CreateTarg
         description={
           isCreateFarm ? (
             <Trans i18nKey="create_pool.modal_section_header_farm_desc">
-              <Link href="https://docs.raydium.io/raydium/pool-creation/creating-a-clmm-pool-and-farm" isExternal>
+              <Link href="https://t.me/sherexcoin" isExternal>
                 CLMM
               </Link>
-              <Link href="https://docs.raydium.io/raydium/pool-creation/creating-a-standard-amm-pool/creating-an-ecosystem-farm" isExternal>
+              <Link href="https://t.me/sherexcoin" isExternal>
                 Standard
               </Link>
             </Trans>
@@ -253,7 +233,7 @@ export function CreatePoolEntryDialogBody({ type, onChange }: { type: CreateTarg
         description={
           isLockPool ? (
             <Trans i18nKey="create_pool.modal_section_header_lock_desc">
-              <Link href="https://docs.raydium.io/raydium/pool-creation/burn-and-earn" isExternal>
+              <Link href="https://t.me/sherexcoin" isExternal>
                 Learn more
               </Link>
             </Trans>

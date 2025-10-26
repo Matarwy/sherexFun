@@ -158,16 +158,16 @@ const appInitState = {
     userAdded: true
   },
   featureDisabled: {
-    swap: false,
-    createConcentratedPosition: false,
-    addConcentratedPosition: false,
-    addStandardPosition: false,
-    removeConcentratedPosition: false,
-    removeStandardPosition: false,
-    addFarm: false,
-    removeFarm: false
+    // swap: false,
+    // createConcentratedPosition: false,
+    // addConcentratedPosition: false,
+    // addStandardPosition: false,
+    // removeConcentratedPosition: false,
+    // removeStandardPosition: false,
+    // addFarm: false,
+    // removeFarm: false
   },
-  txVersion: TxVersion.V0,
+  txVersion: TxVersion.LEGACY,
   appVersion: 'V3.0.2',
   needRefresh: false,
   tokenAccLoaded: false,
@@ -232,9 +232,15 @@ export const useAppStore = createStore<AppState>(
         })
         .map((t) => {
           if (t.type === 'jupiter') {
-            const newInfo = { ...t, logoURI: t.logoURI ? `https://wsrv.nl/?fit=cover&w=48&h=48&url=${t.logoURI}` : t.logoURI }
-            tokenMap.set(t.address, newInfo)
-            return newInfo
+            try {
+              // const uri: any = await getTokenMetadataURL(connection, t.address)
+              const newInfo = { ...t, logoURI: t.logoURI ? 'uri' : t.logoURI }
+              tokenMap.set(t.address, newInfo)
+              return newInfo
+            } catch (error) {
+              console.warn('Failed to get token metadata for', t.address, error)
+              return t
+            }
           }
           return t
         })

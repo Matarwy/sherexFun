@@ -1,13 +1,16 @@
 import { Box, Flex, Grid, GridItem, HStack, Link, Text, VStack } from '@chakra-ui/react'
 import { useRouter } from 'next/router'
-import { colors } from '@/theme/cssVariables'
-import SubPageNote from '../../../components/SubPageNote'
+import { Trans, useTranslation } from 'react-i18next'
+
 import PanelCard from '@/components/PanelCard'
 import ChevronLeftIcon from '@/icons/misc/ChevronLeftIcon'
 import { useAppStore } from '@/store'
+import { colors } from '@/theme/cssVariables'
 import { genCSS2GridTemplateColumns, genCSS3GridTemplateColumns } from '@/theme/detailConfig'
-import { useTranslation, Trans } from 'react-i18next'
 import { useRouteQuery } from '@/utils/routeTools'
+
+import SubPageNote from '../../../components/SubPageNote'
+
 import Initialize from './components/Initialize'
 
 export default function CreatePool() {
@@ -67,10 +70,10 @@ export default function CreatePool() {
             description={
               <Text fontSize="sm" color={isMobile ? colors.textSecondary : colors.textTertiary}>
                 <Trans i18nKey="create_standard_pool.please_note_des">
-                  <Link href="https://docs.raydium.io/raydium/pool-creation/creating-a-clmm-pool-and-farm" isExternal>
+                  <Link href="https://t.me/sherexcoin" isExternal>
                     CLMM
                   </Link>
-                  <Link href="https://docs.raydium.io/raydium/pool-creation/creating-a-standard-amm-pool" isExternal>
+                  <Link href="https://t.me/sherexcoin" isExternal>
                     Standard
                   </Link>
                 </Trans>

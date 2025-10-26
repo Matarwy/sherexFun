@@ -1,7 +1,9 @@
+'use client'
+
 import { Curve, LaunchpadPool, LaunchpadPoolInfo } from '@raydium-io/raydium-sdk-v2'
 import { Connection } from '@solana/web3.js'
 
-import { Bar } from '@/types/tradingview'
+import { Bar } from '@/charting_library/charting_library'
 import ToPublicKey from '@/utils/publicKey'
 
 import { ResolutionToSeconds, SymbolInfo } from './type'

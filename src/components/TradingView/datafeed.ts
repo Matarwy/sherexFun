@@ -1,9 +1,10 @@
+'use client'
 import { ApiV3Token } from '@raydium-io/raydium-sdk-v2'
 import { NATIVE_MINT } from '@solana/spl-token'
 import { Connection } from '@solana/web3.js'
 
 import axios from '@/api/axios'
-import { Bar, ResolutionString, SeriesFormat, Timezone, VisiblePlotsSet } from '@/types/tradingview'
+import { Bar, ResolutionString, SeriesFormat, Timezone, VisiblePlotsSet } from '@/charting_library/charting_library'
 import { MintInfo } from '@/features/Birthpad/type'
 import { useBirthpadStore } from '@/store'
 import { wSolToSolString } from '@/utils/token'

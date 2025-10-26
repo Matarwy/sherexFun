@@ -488,7 +488,6 @@ const TokenDetail = () => {
       </GridItem>
       <GridItem gridArea="chart">
         <TVChart
-          height="100%"
           poolId={isLanded && mintInfo ? `${mintInfo.mint}_${mintB}` : poolId}
           birdeye={mintInfo && isLanded}
           mintInfo={mintInfo}

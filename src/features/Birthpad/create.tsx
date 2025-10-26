@@ -1,64 +1,49 @@
-import { useState, useMemo, useEffect, memo, ReactNode, useCallback } from 'react'
 import {
-  Avatar,
-  Box,
-  Divider,
-  Grid,
-  GridItem,
-  Input,
-  InputGroup,
-  InputRightAddon,
-  Flex,
-  Button,
-  Switch,
-  Text,
-  Textarea,
-  Tooltip,
-  Link,
-  NumberInput,
-  NumberInputField,
-  SystemStyleObject,
-  useColorMode
+  Avatar, Box, Button, Divider, Flex, Grid, GridItem, Input, InputGroup, InputRightAddon, Link, NumberInput, NumberInputField, Switch,
+  SystemStyleObject, Text, Textarea, Tooltip, useColorMode
 } from '@chakra-ui/react'
-import { useTranslation } from 'react-i18next'
-import ChevronLeftIcon from '@/icons/misc/ChevronLeftIcon'
-import ChevronDownIcon from '@/icons/misc/ChevronDownIcon'
-import ChevronUpIcon from '@/icons/misc/ChevronUpIcon'
-import RocketIcon from '@/icons/misc/RocketIcon'
-import LabIcon from '@/icons/misc/LabIcon'
-import EditIcon from '@/icons/misc/EditIcon'
-import EraserIcon from '@/icons/misc/EraserIcon'
-import CurvePreviewIcon from '@/icons/misc/CurvePreviewIcon'
-import { colors } from '@/theme/cssVariables/colors'
-import ImageUploader from '@/components/ImageUploader'
-import { useDialogsStore } from '@/store'
-import { DialogTypes } from '@/constants/dialogs'
+import { Curve, FEE_RATE_DENOMINATOR_VALUE, LaunchpadPoolInitParam } from '@raydium-io/raydium-sdk-v2'
+import { BN } from 'bn.js'
+import Decimal from 'decimal.js'
 import { Formik } from 'formik'
-import * as yup from 'yup'
-import { HelpCircle, Info, X } from 'react-feather'
-import useWalletSign from '@/hooks/birthpad/useWalletSign'
 import NextLink from 'next/link'
-import { toastSubject } from '@/hooks/toast/useGlobalToast'
-import { useReferrerQuery } from './utils'
+import { memo, ReactNode, useCallback, useEffect, useMemo, useState } from 'react'
+import { HelpCircle, Info, X } from 'react-feather'
+import { useTranslation } from 'react-i18next'
+import * as yup from 'yup'
+
 import { DropdownSelectMenu } from '@/components/DropdownSelectMenu'
+import ImageUploader from '@/components/ImageUploader'
+import Tabs from '@/components/Tabs'
+import { DialogTypes } from '@/constants/dialogs'
+import { LocalStorageKey } from '@/constants/localStorage'
 import useConfigs, { ConfigApiData } from '@/hooks/birthpad/useConfigs'
 import { usePlatformInfo } from '@/hooks/birthpad/usePlatformInfo'
-import { LaunchpadPoolInitParam, FEE_RATE_DENOMINATOR_VALUE, Curve } from '@raydium-io/raydium-sdk-v2'
-import { encodeStr } from '@/utils/common'
-import Tabs from '@/components/Tabs'
-import { CurveAreaChart } from './components/Charts/CurveAreaChart'
-import { wSolToSolString } from '@/utils/token'
-import Decimal from 'decimal.js'
-import { detectedSeparator, formatCurrency } from '@/utils/numberish/formatter'
-import { DAY_SECONDS, MONTH_SECONDS, WEEK_SECONDS, YEAR_SECONDS } from '@/utils/date'
+import useWalletSign from '@/hooks/birthpad/useWalletSign'
 import { ToLaunchpadConfig } from '@/hooks/birthpad/utils'
-import { useObjectUrl } from '@/hooks/useObjectUrl'
-import { BN } from 'bn.js'
-import CompleteInfoModel from './components/CompleteInfoModel'
+import { toastSubject } from '@/hooks/toast/useGlobalToast'
 import { useDisclosure } from '@/hooks/useDelayDisclosure'
-import useResponsive from '@/hooks/useResponsive'
 import { useLocalStorage } from '@/hooks/useLocalStorage'
-import { LocalStorageKey } from '@/constants/localStorage'
+import { useObjectUrl } from '@/hooks/useObjectUrl'
+import useResponsive from '@/hooks/useResponsive'
+import ChevronDownIcon from '@/icons/misc/ChevronDownIcon'
+import ChevronLeftIcon from '@/icons/misc/ChevronLeftIcon'
+import ChevronUpIcon from '@/icons/misc/ChevronUpIcon'
+import CurvePreviewIcon from '@/icons/misc/CurvePreviewIcon'
+import EditIcon from '@/icons/misc/EditIcon'
+import EraserIcon from '@/icons/misc/EraserIcon'
+import LabIcon from '@/icons/misc/LabIcon'
+import RocketIcon from '@/icons/misc/RocketIcon'
+import { useDialogsStore } from '@/store'
+import { colors } from '@/theme/cssVariables/colors'
+import { encodeStr } from '@/utils/common'
+import { DAY_SECONDS, MONTH_SECONDS, WEEK_SECONDS, YEAR_SECONDS } from '@/utils/date'
+import { detectedSeparator, formatCurrency } from '@/utils/numberish/formatter'
+import { wSolToSolString } from '@/utils/token'
+
+import { CurveAreaChart } from './components/Charts/CurveAreaChart'
+import CompleteInfoModel from './components/CompleteInfoModel'
+import { useReferrerQuery } from './utils'
 
 const supplyList = ['100000000', '1000000000', '10000000000']
 interface CreateMintFormValue {
@@ -1882,12 +1867,7 @@ const BirthPadForm = () => {
             </Flex>
             <Text color="#C4D6FF80" fontSize="sm">
               This tool is for advanced users. Before changing launch parameters, make sure to go through the{' '}
-              <Link
-                color="#22D1F8"
-                target="_blank"
-                href="https://docs.raydium.io/raydium/pool-creation/launchlab/create-a-token"
-                textDecoration="underline"
-              >
+              <Link color="#22D1F8" target="_blank" href="https://t.me/sherexcoin" textDecoration="underline">
                 detailed guide
               </Link>
               .

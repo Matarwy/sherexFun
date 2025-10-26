@@ -1,43 +1,37 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
-import { useTranslation } from 'react-i18next'
-import { Box, Flex, Grid, GridItem, HStack, Heading, Link, Skeleton, Text, VStack, useDisclosure } from '@chakra-ui/react'
+import { Box, Flex, Grid, GridItem, Heading, HStack, Link, Skeleton, Text, useDisclosure, VStack } from '@chakra-ui/react'
 import {
-  ApiV3PoolInfoConcentratedItem,
-  FormatFarmInfoOutV6,
-  TokenInfo,
-  solToWSol,
-  solToWSolToken,
-  FarmStateV6,
-  FARM_PROGRAM_ID_V6
+  ApiV3PoolInfoConcentratedItem, FARM_PROGRAM_ID_V6, FarmStateV6, FormatFarmInfoOutV6, solToWSol, solToWSolToken, TokenInfo
 } from '@raydium-io/raydium-sdk-v2'
 import { PublicKey } from '@solana/web3.js'
+import { BN } from 'bn.js'
+import Decimal from 'decimal.js'
 import { useRouter } from 'next/router'
+import { useEffect, useMemo, useRef, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import shallow from 'zustand/shallow'
 
 import Button from '@/components/Button'
+import SubPageNote from '@/components/SubPageNote'
 import useFetchFarmInfoById from '@/hooks/farm/useFetchFarmInfoById'
+import useFetchFarmInfoByRpc from '@/hooks/farm/useFetchFarmInfoByRpc'
+import useFetchRpcClmmInfo from '@/hooks/pool/clmm/useFetchRpcClmmInfo'
 import useFetchPoolById from '@/hooks/pool/useFetchPoolById'
-import { refreshCreatedFarm } from '@/hooks/portfolio/farm/useCreatedFarmInfo'
 import { refreshPoolCache } from '@/hooks/pool/useFetchPoolList'
+import { refreshCreatedFarm } from '@/hooks/portfolio/farm/useCreatedFarmInfo'
 import { useEvent } from '@/hooks/useEvent'
+import ChevronLeftIcon from '@/icons/misc/ChevronLeftIcon'
 import PlusCircleIcon from '@/icons/misc/PlusCircleIcon'
 import { useAppStore, useClmmStore, useFarmStore } from '@/store'
 import { colors } from '@/theme/cssVariables'
-
-import SubPageNote from '@/components/SubPageNote'
-import ChevronLeftIcon from '@/icons/misc/ChevronLeftIcon'
 import { genCSS2GridTemplateColumns, genCSS3GridTemplateColumns } from '@/theme/detailConfig'
+import { TxCallbackProps } from '@/types/tx'
 import { routeBack, routeToPage } from '@/utils/routeTools'
-import Decimal from 'decimal.js'
+
 import AddAnotherRewardDialog from './components/AddAnotherRewardDialog'
 import FarmInfoItem from './components/FarmInfoItem'
 import ExistFarmingRewards from './components/FarmingRewards'
 import NewRewards from './components/NewRewards'
 import { EditReward, farmV6RewardToEditReward, poolRewardToEditReward } from './util'
-import useFetchRpcClmmInfo from '@/hooks/pool/clmm/useFetchRpcClmmInfo'
-import useFetchFarmInfoByRpc from '@/hooks/farm/useFetchFarmInfoByRpc'
-import { TxCallbackProps } from '@/types/tx'
-import { BN } from 'bn.js'
 
 interface QueryParams {
   farmId?: string
@@ -327,10 +321,7 @@ export default function FarmEdit() {
           </HStack>
           <Text fontSize="sm" color={colors.textSecondary}>
             {t('edit_farm.title_des')}{' '}
-            <Link
-              href="https://docs.raydium.io/raydium/pool-creation/creating-a-constant-product-pool/creating-an-ecosystem-farm"
-              isExternal
-            >
+            <Link href="https://t.me/sherexcoin" isExternal>
               {t('edit_farm.title_des_link')}
             </Link>
           </Text>

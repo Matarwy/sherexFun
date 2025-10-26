@@ -64,7 +64,7 @@ const MyApp = ({ Component, pageProps, ...props }: AppProps) => {
 
   return (
     <>
-      <Script src="/charting_library/charting_library.js" strategy="afterInteractive" onLoad={() => console.log('tv.js loaded')} />
+      {/* <Script src="/charting_library/charting_library.js" strategy="afterInteractive" onLoad={() => console.log('tv.js loaded')} /> */}
       {/* correct initial color mode before React hydrates */}
       <ColorModeScript initialColorMode={theme.config.initialColorMode} />
 

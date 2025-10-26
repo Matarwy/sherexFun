@@ -1,7 +1,8 @@
+'use client'
 import { ApiV3Token } from '@raydium-io/raydium-sdk-v2'
 
 import axios from '@/api/axios'
-import { Bar, ResolutionString, SeriesFormat, Timezone } from '@/types/tradingview'
+import { Bar, ResolutionString, SeriesFormat, Timezone } from '@/charting_library/charting_library'
 import { MintInfo } from '@/features/Birthpad/type'
 import { useAppStore, useTokenStore } from '@/store'
 import { encodeStr } from '@/utils/common'

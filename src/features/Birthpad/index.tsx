@@ -179,7 +179,7 @@ export default function Birthpad() {
                       Share, Refer, Earn SOL! Share your link and get referral fees airdropped to you!
                     </Text>
                     <Link
-                      href="https://docs.raydium.io/raydium/pool-creation/launchlab/earn-referral-fees"
+                      href="https://t.me/sherexcoin"
                       shallow
                       target="_blank"
                       rel="noopener noreferrer"

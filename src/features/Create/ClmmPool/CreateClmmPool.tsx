@@ -1,13 +1,17 @@
 import { Box, Flex, Grid, GridItem, HStack, Link, Text, useDisclosure } from '@chakra-ui/react'
 import { ApiClmmConfigInfo, ApiV3Token, solToWSol } from '@raydium-io/raydium-sdk-v2'
+import BN from 'bn.js'
+import Decimal from 'decimal.js'
 import { useCallback, useRef, useState } from 'react'
-import { useTranslation, Trans } from 'react-i18next'
+import { Trans, useTranslation } from 'react-i18next'
 import shallow from 'zustand/shallow'
 
 import PanelCard from '@/components/PanelCard'
 import { StepsRef } from '@/components/Steps'
 import SubPageNote from '@/components/SubPageNote'
 import PreviewDepositModal from '@/features/Clmm/components/PreviewDepositModal'
+import useBirdeyeTokenPrice from '@/hooks/token/useBirdeyeTokenPrice'
+import { useEvent } from '@/hooks/useEvent'
 import ChevronLeftIcon from '@/icons/misc/ChevronLeftIcon'
 import { CreatePoolBuildData, useAppStore, useClmmStore } from '@/store'
 import { colors } from '@/theme/cssVariables/colors'
@@ -15,16 +19,13 @@ import { genCSS2GridTemplateColumns, genCSS3GridTemplateColumns } from '@/theme/
 import { debounce, exhaustCall } from '@/utils/functionMethods'
 import { routeBack } from '@/utils/routeTools'
 import { solToWSolToken } from '@/utils/token'
-import BN from 'bn.js'
-import Decimal from 'decimal.js'
+
+import CreateSuccessModal from './components/CreateSuccessModal'
+import CreateSuccessWithLockModal from './components/CreateSuccessWithLockModal'
 import SelectPoolToken from './components/SelectPoolTokenAndFee'
 import SetPriceAndRange from './components/SetPriceAndRange'
 import Stepper from './components/Stepper'
 import TokenAmountPairInputs from './components/TokenAmountInput'
-import CreateSuccessModal from './components/CreateSuccessModal'
-import CreateSuccessWithLockModal from './components/CreateSuccessWithLockModal'
-import { useEvent } from '@/hooks/useEvent'
-import useBirdeyeTokenPrice from '@/hooks/token/useBirdeyeTokenPrice'
 
 export default function CreateClmmPool() {
   const isMobile = useAppStore((s) => s.isMobile)
@@ -239,10 +240,10 @@ export default function CreateClmmPool() {
               description={
                 <Text fontSize="sm" color={isMobile ? colors.textSecondary : colors.textTertiary}>
                   <Trans i18nKey="create_pool.clmm_please_note_des">
-                    <Link href="https://docs.raydium.io/raydium/pool-creation/creating-a-clmm-pool-and-farm" isExternal>
+                    <Link href="https://t.me/sherexcoin" isExternal>
                       CLMM
                     </Link>
-                    <Link href="https://docs.raydium.io/raydium/pool-creation/creating-a-standard-amm-pool" isExternal>
+                    <Link href="https://t.me/sherexcoin" isExternal>
                       Standard
                     </Link>
                   </Trans>

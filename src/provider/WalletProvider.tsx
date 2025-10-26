@@ -1,35 +1,24 @@
-import { FC, PropsWithChildren, useEffect } from 'react'
-import React, { useMemo, useState } from 'react'
-
-import { WalletAdapterNetwork } from '@solana/wallet-adapter-base'
+import { registerMoonGateWallet } from '@moongate/moongate-adapter'
+import { type Adapter, WalletAdapterNetwork, type WalletError } from '@solana/wallet-adapter-base'
+import { ExodusWalletAdapter } from '@solana/wallet-adapter-exodus'
+import { GlowWalletAdapter } from '@solana/wallet-adapter-glow'
 import { ConnectionProvider, WalletProvider } from '@solana/wallet-adapter-react'
 import { WalletModalProvider } from '@solana/wallet-adapter-react-ui'
-import { GlowWalletAdapter } from '@solana/wallet-adapter-glow'
-import { ExodusWalletAdapter } from '@solana/wallet-adapter-exodus'
 import { SlopeWalletAdapter } from '@solana/wallet-adapter-slope'
-import { SolflareWalletAdapter, initialize } from '@solflare-wallet/wallet-adapter'
 import {
-  PhantomWalletAdapter,
-  TorusWalletAdapter,
-  TrustWalletAdapter,
-  // LedgerWalletAdapter,
-  MathWalletAdapter,
-  TokenPocketWalletAdapter,
-  CoinbaseWalletAdapter,
-  SolongWalletAdapter,
-  Coin98WalletAdapter,
-  SafePalWalletAdapter,
-  BitpieWalletAdapter,
-  BitgetWalletAdapter
+  BitgetWalletAdapter, BitpieWalletAdapter, Coin98WalletAdapter, CoinbaseWalletAdapter, MathWalletAdapter, PhantomWalletAdapter,
+  SafePalWalletAdapter, SolongWalletAdapter, TokenPocketWalletAdapter, TorusWalletAdapter, TrustWalletAdapter
 } from '@solana/wallet-adapter-wallets'
-import { useAppStore, defaultNetWork, defaultEndpoint } from '../store/useAppStore'
-import { registerMoonGateWallet } from '@moongate/moongate-adapter'
+import { initialize, SolflareWalletAdapter } from '@solflare-wallet/wallet-adapter'
 import { TipLinkWalletAdapter } from '@tiplink/wallet-adapter'
 import { WalletConnectWalletAdapter } from '@walletconnect/solana-adapter'
+import React, { FC, PropsWithChildren, useEffect, useMemo, useState } from 'react'
 
-import { type Adapter, type WalletError } from '@solana/wallet-adapter-base'
 import { sendWalletEvent } from '@/api/event'
 import { useEvent } from '@/hooks/useEvent'
+
+import { defaultEndpoint, defaultNetWork, useAppStore } from '../store/useAppStore'
+
 import { LedgerWalletAdapter } from './Ledger/LedgerWalletAdapter'
 
 initialize()
@@ -75,10 +64,10 @@ const App: FC<PropsWithChildren<any>> = ({ children }) => {
           options: {
             projectId: process.env.NEXT_PUBLIC_WALLET_CONNECT_PJ_ID,
             metadata: {
-              name: 'Raydium',
-              description: 'Raydium',
-              url: 'https://raydium.io/',
-              icons: ['https://raydium.io/logo/logo-only-icon.svg']
+              name: 'Sherex Fun',
+              description: 'BirthPad on Sherex Fun',
+              url: 'https://sherex.fun/',
+              icons: ['https://sherex.fun/logo.png']
             }
           }
         })

@@ -1,17 +1,19 @@
-import { Box, Button, Flex, Link, Grid, GridItem, HStack, Skeleton, Text, useDisclosure } from '@chakra-ui/react'
-import { useState, useCallback, useEffect } from 'react'
-import { useTranslation, Trans } from 'react-i18next'
+import { Box, Button, Flex, Grid, GridItem, HStack, Link, Skeleton, Text, useDisclosure } from '@chakra-ui/react'
+import { ApiV3PoolInfoStandardItemCpmm, CpmmLockExtInfo } from '@raydium-io/raydium-sdk-v2'
+import BN from 'bn.js'
+import { useCallback, useEffect, useState } from 'react'
+import { Trans, useTranslation } from 'react-i18next'
+
+import useLockableCpmmLp from '@/hooks/portfolio/cpmm/useLockableCpmmLp'
+import { MintData } from '@/hooks/token/useFetchAccLpMint'
 import ChevronLeftIcon from '@/icons/misc/ChevronLeftIcon'
+import { useLiquidityStore, useTokenAccountStore } from '@/store'
 import { colors } from '@/theme/cssVariables/colors'
 import { routeBack } from '@/utils/routeTools'
+
 import LiquidityItem from './components/LiquidityItem'
 import LiquidityLockModal from './components/LiquidityLockModal'
 import LockedNFTModal from './components/LockedNFTModal'
-import useLockableCpmmLp from '@/hooks/portfolio/cpmm/useLockableCpmmLp'
-import { MintData } from '@/hooks/token/useFetchAccLpMint'
-import { useLiquidityStore, useTokenAccountStore } from '@/store'
-import { ApiV3PoolInfoStandardItemCpmm, CpmmLockExtInfo } from '@raydium-io/raydium-sdk-v2'
-import BN from 'bn.js'
 
 export default function Lock() {
   const { t } = useTranslation()
@@ -110,7 +112,7 @@ export default function Lock() {
               <Text mb={[4, 7]}>{t('liquidity.lock_cpmm_desc1')}</Text>
               <Text mb={[4, 7]} color={colors.semanticWarning}>
                 <Trans i18nKey="liquidity.lock_cpmm_desc4">
-                  <Link href="https://docs.raydium.io/raydium/pool-creation/burn-and-earn" isExternal></Link>
+                  <Link href="https://t.me/sherexcoin" isExternal></Link>
                 </Trans>
               </Text>
               <Text mb={[4, 7]}>

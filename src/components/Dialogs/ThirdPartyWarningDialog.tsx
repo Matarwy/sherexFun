@@ -1,5 +1,6 @@
+import { Button, Checkbox, Flex, Modal, ModalBody, ModalContent, ModalFooter, ModalOverlay, Text } from '@chakra-ui/react'
 import { useState } from 'react'
-import { Button, Checkbox, Text, Flex, Modal, ModalOverlay, ModalContent, ModalBody, ModalFooter } from '@chakra-ui/react'
+
 import { DialogProps, ThirdPartyWarningDialogProps } from '@/constants/dialogs'
 import CircleWarning from '@/icons/misc/CircleWarning'
 import { colors } from '@/theme/cssVariables'
@@ -37,7 +38,7 @@ export const ThirdPartyWarningDialog = ({ setIsOpen, url }: DialogProps<ThirdPar
               Third-party website warning
             </Text>
             <Text textAlign="center" color={colors.lightPurple} lineHeight="20px" mb={6}>
-              You are being redirected to a third-party website outside of Raydium.
+              You are being redirected to a third-party website outside of SherexFun.
             </Text>
             <Text fontWeight="bold" color={colors.semanticWarning}>
               Be extremely cautious of scams!

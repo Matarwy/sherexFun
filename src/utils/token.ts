@@ -1,5 +1,10 @@
+import { Metaplex } from '@metaplex-foundation/js'
 import { ApiV3Token, SOL_INFO, SOLMint, TOKEN_WSOL, TokenInfo, USDCMint, USDTMint, WSOLMint } from '@raydium-io/raydium-sdk-v2'
-import { PublicKey } from '@solana/web3.js'
+import {
+  createAssociatedTokenAccountIdempotentInstruction, getAccount, getAssociatedTokenAddressSync, TokenAccountNotFoundError,
+  TokenInvalidAccountOwnerError
+} from '@solana/spl-token'
+import { Connection, PublicKey, TransactionInstruction } from '@solana/web3.js'
 
 import { sortItems } from '@/utils/sortItems'
 
@@ -11,6 +16,22 @@ export const solToWsolString = (name?: string) => (name ? name.replace(/^SOL/gi,
 export const isSolWSol = (mint?: string | PublicKey) => {
   if (!mint) return false
   return mint.toString() === TOKEN_WSOL.address || mint.toString() === SOL_INFO.address
+}
+
+export async function getTokenMetadataURL(connection: Connection, mintAddress: string) {
+  console.log('Calling getTokenMetadata..')
+  try {
+    const metaplex = Metaplex.make(connection as any)
+    const mint = new PublicKey(mintAddress)
+    const metadata = await metaplex.nfts().findByMint({ mintAddress: mint })
+    console.log('metadata', metadata)
+    console.log(`Token Name: ${metadata.name}`)
+    console.log(`Token Symbol: ${metadata.symbol}`)
+    return metadata.uri
+  } catch (error) {
+    console.log('Error fetching token metadata:', error)
+    return ''
+  }
 }
 
 export const solToWSolToken = (token: ApiV3Token): ApiV3Token => {
@@ -128,5 +149,31 @@ export function isValidAddress(address: string): boolean {
     return true
   } catch (_e) {
     return false
+  }
+}
+
+export const getOrCreateATAInstruction = async (
+  connection: Connection,
+  tokenMint: PublicKey,
+  owner: PublicKey,
+  payer: PublicKey,
+  allowOwnerOffCurve = true,
+  tokenProgram: PublicKey
+): Promise<{ ataPubkey: PublicKey; ix?: TransactionInstruction }> => {
+  const toAccount = getAssociatedTokenAddressSync(tokenMint, owner, allowOwnerOffCurve, tokenProgram)
+
+  try {
+    await getAccount(connection, toAccount)
+    return { ataPubkey: toAccount, ix: undefined }
+  } catch (e) {
+    if (e instanceof TokenAccountNotFoundError || e instanceof TokenInvalidAccountOwnerError) {
+      const ix = createAssociatedTokenAccountIdempotentInstruction(payer, toAccount, owner, tokenMint, tokenProgram)
+
+      return { ataPubkey: toAccount, ix }
+    } else {
+      /* handle error */
+      console.error('Error::getOrCreateATAInstruction', e)
+      throw e
+    }
   }
 }

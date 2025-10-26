@@ -1,4 +1,6 @@
-import type { ThemeName } from '@/types/tradingview'
+'use client'
+
+import type { ThemeName } from '@/charting_library/charting_library.js'
 
 export enum AppColorMode {
   GreenUp = 'GreenUp',

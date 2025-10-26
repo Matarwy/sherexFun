@@ -1,14 +1,16 @@
 import { useWallet } from '@solana/wallet-adapter-react'
 import { useWalletModal } from '@solana/wallet-adapter-react-ui'
-import { useEvent } from '../useEvent'
-import { toastSubject } from '../toast/useGlobalToast'
 import { PublicKey, Transaction, TransactionInstruction } from '@solana/web3.js'
-import { getStorageItem, setStorageItem, deleteStorageItem } from '@/utils/localStorage'
-import axios from '@/api/axios'
 import base58 from 'bs58'
+
+import axios from '@/api/axios'
+import { onboardingDialogSubject } from '@/components/Dialogs/OnboardingDialog'
 import { useBirthpadStore } from '@/store'
 import { isClient } from '@/utils/common'
-import { onboardingDialogSubject } from '@/components/Dialogs/OnboardingDialog'
+import { deleteStorageItem, getStorageItem, setStorageItem } from '@/utils/localStorage'
+
+import { toastSubject } from '../toast/useGlobalToast'
+import { useEvent } from '../useEvent'
 
 interface RequestTokenRes {
   id: string
@@ -103,7 +105,7 @@ export default function useWalletSign() {
     }
 
     try {
-      const msgDef = 'Sign in to raydium.io: '
+      const msgDef = 'Sign in to sherex.fun: '
       const time = Math.floor(new Date().getTime() / 1000)
       const signInMsg = `${msgDef}${time}`
 
