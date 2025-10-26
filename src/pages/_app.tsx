@@ -47,7 +47,7 @@ const MyApp = ({ Component, pageProps, ...props }: AppProps) => {
   const locale = i18n?.language ?? 'en'
   const ogImage = '/logo.png' // TODO: replace with your hosted OG image
   const siteUrl = 'https://sherex.fun' // TODO: adjust if different
-  const handle = '@SherexFun' // TODO: adjust if you have a Twitter/X handle
+  const handle = '@sherexcoin' // TODO: adjust if you have a Twitter/X handle
 
   // const [setRpcUrlAct] = useAppStore((s) => [s.setRpcUrlAct], shallow)
   // const { onOpen: onLoading, onClose: offLoading } = useDisclosure()
@@ -68,7 +68,7 @@ const MyApp = ({ Component, pageProps, ...props }: AppProps) => {
       {/* correct initial color mode before React hydrates */}
       <ColorModeScript initialColorMode={theme.config.initialColorMode} />
 
-      <GoogleAnalytics gaId="G-DR3V6FTKE3" />
+      <GoogleAnalytics gaId="G-BFSKD1FEL0" />
 
       <Head>
         <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
@@ -100,6 +100,29 @@ const MyApp = ({ Component, pageProps, ...props }: AppProps) => {
       <DirectionProviders>
         <DynamicProviders>
           {/* keep popovers/menus/modals above any transformed parents */}
+          {/* Inline setup for window.si */}
+          <Script id="vercel-si-init" strategy="beforeInteractive">
+            {`
+              window.si = window.si || function () {
+                (window.siq = window.siq || []).push(arguments);
+              };
+            `}
+          </Script>
+
+          {/* External script */}
+          <Script src="/_vercel/speed-insights/script.js" strategy="afterInteractive" defer />
+
+          {/* Inline setup for window.va */}
+          <Script id="vercel-analytics-init" strategy="beforeInteractive">
+            {`
+              window.va = window.va || function () {
+                (window.vaq = window.vaq || []).push(arguments);
+              };
+            `}
+          </Script>
+
+          {/* Vercel Analytics script */}
+          <Script src="/_vercel/insights/script.js" strategy="afterInteractive" defer />
           <PortalManager zIndex={1600}>
             <DynamicContent {...props}>
               {onlyContent ? (

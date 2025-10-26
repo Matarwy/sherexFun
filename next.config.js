@@ -2,23 +2,26 @@
 const path = require('path')
 
 module.exports = {
-  images: {
-    remotePatterns: [
-      // Raydium launch mint service
-      { protocol: 'https', hostname: 'launch-mint-v1.raydium.io' },
-      // Common NFT gateways
-      { protocol: 'https', hostname: 'ipfs.io' },
-      { protocol: 'https', hostname: 'gateway.pinata.cloud' },
-      { protocol: 'https', hostname: 'cloudflare-ipfs.com' },
-      { protocol: 'https', hostname: 'arweave.net' },
-      { protocol: 'https', hostname: 'uploads.pinata.cloud' },
-      { protocol: 'https', hostname: 'pinata.cloud' },
-      { protocol: 'https', hostname: 'silver-passive-marten-530.mypinata.cloud' },
-      // (optional) Shadow drive or other CDNs your API returns
-      { protocol: 'https', hostname: 'shdw-drive.genesysgo.net' }
-    ]
-  },
+  // images: {
+  //   remotePatterns: [
+  //     // Raydium launch mint service
+  //     { protocol: 'https', hostname: 'launch-mint-v1.raydium.io' },
+  //     // Common NFT gateways
+  //     { protocol: 'https', hostname: 'ipfs.io' },
+  //     { protocol: 'https', hostname: 'gateway.pinata.cloud' },
+  //     { protocol: 'https', hostname: 'cloudflare-ipfs.com' },
+  //     { protocol: 'https', hostname: 'arweave.net' },
+  //     { protocol: 'https', hostname: 'uploads.pinata.cloud' },
+  //     { protocol: 'https', hostname: 'pinata.cloud' },
+  //     { protocol: 'https', hostname: 'silver-passive-marten-530.mypinata.cloud' },
+  //     // (optional) Shadow drive or other CDNs your API returns
+  //     { protocol: 'https', hostname: 'shdw-drive.genesysgo.net' }
+  //   ]
+  // },
   trailingSlash: true,
+  output: 'export', // ⬅️ NEW: replaces `next export`
+  trailingSlash: true, // keeps .../index.html paths
+  images: { unoptimized: true }, // needed for static export
   webpack: (config, { buildId, dev, isServer, defaultLoaders, nextRuntime, webpack }) => {
     config.resolve.alias = {
       ...config.resolve.alias,
