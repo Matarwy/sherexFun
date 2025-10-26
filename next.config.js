@@ -9,29 +9,27 @@ module.exports = {
       '@': path.resolve('./src')
     }
 
-    config.experiments = { ...(config.experiments || {}), importAttributes: true }
-
-    config.optimization.splitChunks = {
-      chunks: 'async',
-      minSize: 10000,
-      minRemainingSize: 0,
-      minChunks: 2,
-      maxAsyncRequests: 30,
-      maxInitialRequests: 30,
-      enforceSizeThreshold: 30000,
-      cacheGroups: {
-        defaultVendors: {
-          test: /[\\/]node_modules[\\/]/,
-          priority: -10,
-          reuseExistingChunk: true
-        },
-        default: {
-          minChunks: 2,
-          priority: -20,
-          reuseExistingChunk: true
-        }
-      }
-    }
+    // config.optimization.splitChunks = {
+    //   chunks: 'async',
+    //   minSize: 10000,
+    //   minRemainingSize: 0,
+    //   minChunks: 2,
+    //   maxAsyncRequests: 30,
+    //   maxInitialRequests: 30,
+    //   enforceSizeThreshold: 30000,
+    //   cacheGroups: {
+    //     defaultVendors: {
+    //       test: /[\\/]node_modules[\\/]/,
+    //       priority: -10,
+    //       reuseExistingChunk: true
+    //     },
+    //     default: {
+    //       minChunks: 2,
+    //       priority: -20,
+    //       reuseExistingChunk: true
+    //     }
+    //   }
+    // }
 
     return config
   },

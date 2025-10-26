@@ -208,7 +208,7 @@ export const useAppStore = createStore<AppState>(
         disableFeatureCheck: true,
         loopMultiTxStatus: true,
         blockhashCommitment: 'finalized',
-        cluster: connection.rpcEndpoint === clusterApiUrl('devnet') ? 'devnet' : 'mainnet',
+        cluster: 'mainnet', //connection.rpcEndpoint === clusterApiUrl('devnet') ? 'devnet' : 'mainnet',
         apiRequestTimeout: 20 * 1000
       })
       useTokenStore.getState().extraLoadedTokenList.forEach((t) => {

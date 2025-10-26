@@ -6,6 +6,8 @@ import * as Sentry from '@sentry/nextjs'
 
 import { beforeSend, beforeSendSpan } from './sentryUtils'
 
+export const onRouterTransitionStart = Sentry.captureRouterTransitionStart
+
 Sentry.init({
   dsn: 'https://35390007bd8cbfcc2aeec4ade924d375@o4510063220555776.ingest.de.sentry.io/4510063367749712',
 

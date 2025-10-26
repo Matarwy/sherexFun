@@ -1,18 +1,19 @@
-import { useCallback, useEffect, useRef, useMemo } from 'react'
-import { clusterApiUrl, PublicKey, Transaction, VersionedTransaction } from '@solana/web3.js'
+import { txToBase64, TxVersion, validateAndParsePublicKey } from '@raydium-io/raydium-sdk-v2'
 import { useConnection, useWallet } from '@solana/wallet-adapter-react'
-import { TxVersion, validateAndParsePublicKey, txToBase64 } from '@raydium-io/raydium-sdk-v2'
-import { useAppStore, defaultEndpoint } from '@/store/useAppStore'
-import usePrevious from '@/hooks/usePrevious'
+import { clusterApiUrl, PublicKey, Transaction, VersionedTransaction } from '@solana/web3.js'
+import { useCallback, useEffect, useMemo, useRef } from 'react'
+import { parseUserAgent } from 'react-device-detect'
 import shallow from 'zustand/shallow'
-import { isLocal } from '@/utils/common'
+
+import { sendWalletEvent } from '@/api/event'
+import { extendTxData, validateTxData } from '@/api/txService'
+import usePrevious from '@/hooks/usePrevious'
+import { defaultEndpoint, useAppStore } from '@/store/useAppStore'
+import { cancelAllRetry, isLocal } from '@/utils/common'
 import { getDevOnlyStorage } from '@/utils/localStorage'
+
 import { SSRData } from '../../type'
 import { toastSubject } from '../toast/useGlobalToast'
-import { cancelAllRetry } from '@/utils/common'
-import { sendWalletEvent } from '@/api/event'
-import { validateTxData, extendTxData } from '@/api/txService'
-import { parseUserAgent } from 'react-device-detect'
 
 const localFakePubKey = '_sherex_f_wallet_'
 export const WALLET_STORAGE_KEY = 'walletName'
@@ -147,7 +148,7 @@ function useInitConnection(props: SSRData) {
     // raydium sdk initialization can be done with connection only, if url or rpc changed, re-init
     if (raydium && !isNeedReload) {
       raydium.setConnection(connection)
-      raydium.cluster = connection.rpcEndpoint === clusterApiUrl('devnet') ? 'devnet' : 'mainnet'
+      raydium.cluster = 'mainnet' //connection.rpcEndpoint === clusterApiUrl('devnet') ? 'devnet' : 'mainnet'
       return
     }
 
