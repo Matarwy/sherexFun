@@ -21,7 +21,21 @@ module.exports = {
   trailingSlash: true,
   output: 'export', // ⬅️ NEW: replaces `next export`
   trailingSlash: true, // keeps .../index.html paths
-  images: { unoptimized: true }, // needed for static export
+  images: {
+    unoptimized: true,
+    domains: [
+      'gateway.lighthouse.storage',
+      'shdw-drive.genesysgo.net',
+      'launch-mint-v1.raydium.io',
+      'silver-passive-marten-530.mypinata.cloud',
+      'ipfs.io',
+      'nftstorage.link',
+      'cloudflare-ipfs.com',
+      'gateway.pinata.cloud',
+      'arweave.net',
+      'api.nft.storage'
+    ]
+  }, // needed for static export
   webpack: (config, { buildId, dev, isServer, defaultLoaders, nextRuntime, webpack }) => {
     config.resolve.alias = {
       ...config.resolve.alias,
@@ -60,6 +74,9 @@ module.exports = {
         permanent: false
       }
     ]
+  },
+  async rewrites() {
+    return [{ source: '/token', destination: '/birthpad/token' }]
   }
 }
 

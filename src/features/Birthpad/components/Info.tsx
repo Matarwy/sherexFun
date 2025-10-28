@@ -1,26 +1,29 @@
-import { useCallback, useEffect, useState } from 'react'
-import { Box, Divider, Flex, Grid, Text, Tooltip, useColorMode, useClipboard, Image } from '@chakra-ui/react'
-import { colors } from '@/theme/cssVariables/colors'
-import ThreeStageProgress from './ThreeStageProgress'
-import { MintInfo } from '../type'
-import Decimal from 'decimal.js'
-import { formatCurrency } from '@/utils/numberish/formatter'
-import { useAppStore } from '@/store'
-import { HelpCircle } from 'react-feather'
-import CircleCheck from '@/icons/misc/CircleCheck'
-import CopyBirthpadIcon from '@/icons/misc/CopyBirthpadIcon'
-import { encodeStr } from '@/utils/common'
-import { addPoolListener, removePoolListener } from '@/components/TradingView/streaming'
+import { Box, Divider, Flex, Grid, Image, Text, Tooltip, useClipboard, useColorMode } from '@chakra-ui/react'
 import { Curve, LaunchpadPoolInfo } from '@raydium-io/raydium-sdk-v2'
 import dayjs from 'dayjs'
-import { CurveLineChart, Point } from './Charts/CurveLineChart'
-import { wSolToSolString } from '@/utils/token'
-import QuestionCircleIcon from '@/icons/misc/QuestionCircleIcon'
+import Decimal from 'decimal.js'
+import { useCallback, useEffect, useState } from 'react'
+import { HelpCircle } from 'react-feather'
+
 import TokenAvatar from '@/components/TokenAvatar'
-import { getDurationUText } from '@/utils/time'
-import { getImgProxyUrl } from '@/utils/url'
+import { addPoolListener, removePoolListener } from '@/components/TradingView/streaming'
+import CircleCheck from '@/icons/misc/CircleCheck'
+import CopyBirthpadIcon from '@/icons/misc/CopyBirthpadIcon'
 import ExternalLink from '@/icons/misc/ExternalLink'
+import QuestionCircleIcon from '@/icons/misc/QuestionCircleIcon'
+import { useAppStore } from '@/store'
+import { colors } from '@/theme/cssVariables/colors'
+import { encodeStr } from '@/utils/common'
+import { formatCurrency } from '@/utils/numberish/formatter'
+import { getDurationUText } from '@/utils/time'
+import { wSolToSolString } from '@/utils/token'
+import { getImgProxyUrl } from '@/utils/url'
+
+import { MintInfo } from '../type'
+
+import { CurveLineChart, Point } from './Charts/CurveLineChart'
 import { SocialLinks } from './SocialLinks'
+import ThreeStageProgress from './ThreeStageProgress'
 
 export default function Info({
   poolInfo,
@@ -51,6 +54,7 @@ export default function Info({
   const hasMintInfo = !!mintInfo
   useEffect(() => {
     if (!hasMintInfo) return
+    console.log('mintInfo finishingRate updated:', mintInfo)
     setFinishRate((rate) => rate || mintInfo.finishingRate)
   }, [hasMintInfo])
 
@@ -455,7 +459,7 @@ export default function Info({
         <Flex alignItems="center" justifyContent="space-between" color={colors.textSecondary} gap={1}>
           <Flex alignItems="center" gap="1">
             Platform LP fee share
-            {/* <Tooltip
+            <Tooltip
               hasArrow
               placement="top"
               label={`After the token graduates, token creators can claim ${
@@ -463,10 +467,10 @@ export default function Info({
               }% of LP fees from AMM pool trades.`}
             >
               <QuestionCircleIcon color={colors.lightPurple} />
-            </Tooltip> */}
+            </Tooltip>
           </Flex>
           <Flex alignItems="center" gap="1">
-            {mintInfo.migrateType === 'cpmm' ? 'Yes' : 'No'}
+            {['1', 'cpmm'].includes(String(mintInfo.migrateType)) ? 'Yes' : 'No'}
           </Flex>
         </Flex>
         <Flex alignItems="center" justifyContent="space-between" color={colors.textSecondary} gap={1}>

@@ -337,7 +337,7 @@ export const useBirthpadStore = createStore<LaunchpadState>((set, get) => ({
     buyAmount,
     slippage,
     minMintAAmount,
-    migrateType = 'amm',
+    migrateType,
     notExecute,
     shareFeeReceiver,
     configId,
@@ -423,7 +423,7 @@ export const useBirthpadStore = createStore<LaunchpadState>((set, get) => ({
         unlockPeriod: LaunchpadPoolInitParam.unlockPeriod,
         // set your platform id, current platform: bonk
         platformId: useAppStore.getState().programIdConfig.LAUNCHPAD_PROGRAM,
-        migrateType: 'amm', // or cpmm
+        migrateType: 'cpmm', // or cpmm
         description: 'description'
       }
       const mintBDecimals = mintBInfo.decimals
@@ -435,7 +435,7 @@ export const useBirthpadStore = createStore<LaunchpadState>((set, get) => ({
         name: name,
         symbol: symbol,
         uri,
-        migrateType: 'amm',
+        migrateType: migrateType || 'cpmm',
         configId: fetchedConfigId,
         configInfo: decodedConfigInfo,
         mintBDecimals,

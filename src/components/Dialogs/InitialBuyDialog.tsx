@@ -21,8 +21,9 @@ import { useDisclosure } from '@/hooks/useDelayDisclosure'
 import { useEvent } from '@/hooks/useEvent'
 import { useBirthpadStore } from '@/store'
 import { colors } from '@/theme/cssVariables'
-import { uploadFile } from '@/utils/file/upload'
 import { detectedSeparator, trimTrailZero } from '@/utils/numberish/formatter'
+// import { uploadFile } from '@/utils/file/upload'
+import { uploadToLighthouse } from '@/utils/upload/lighthouse'
 
 // import { useWallet } from '@solana/wallet-adapter-react'
 
@@ -60,7 +61,7 @@ export const InitialBuyDialog = ({ setIsOpen, configInfo, ...mintData }: DialogP
         platformFeeRate: platformInfo?.feeRate ?? new BN(7500),
         curveType: configInfo.key.curveType,
         shareFeeRate,
-        creatorFeeRate: new BN(0), // or use the correct value if available
+        creatorFeeRate: platformInfo?.creatorFeeRate ?? new BN(0), // or use the correct value if available
         transferFeeConfigA: undefined, // or use the correct value if available
         slot: 0 // or use the correct value if available
       })
@@ -109,8 +110,13 @@ export const InitialBuyDialog = ({ setIsOpen, configInfo, ...mintData }: DialogP
       return
     }
     try {
-      console.log('before callling tempMintData..')
-      const uri = await uploadFile(mintData.file)
+      // console.log('before callling tempMintData..')
+      // const uri =await uploadFile(mintData.file)
+      const { metadataUrl } = await uploadToLighthouse(mintData.file, {
+        name: mintData.name,
+        symbol: mintData.ticker,
+        description: (mintData as any).description ?? ''
+      })
       // const tempMintData = await createRandomMintAct({
       //   ...mintData,
       //   configId: configInfo.key.pubKey,
@@ -119,25 +125,20 @@ export const InitialBuyDialog = ({ setIsOpen, configInfo, ...mintData }: DialogP
 
       const mintKp = Keypair.generate()
       const mint = mintKp.publicKey.toBase58()
-      console.log('mint======>', mint)
 
       // if (!tempMintData) {
       //   toastSubject.next({})
       //   return
       // }
 
-      // console.log("tempMintData======>", tempMintData)
-
-      console.log('amount======>', amount)
-      // let _amount = 0.0001
-
       const buyAmount = new BN(new Decimal(amount).mul(10 ** 9).toString())
-      console.log('buyAmount======>', buyAmount.toString())
-      console.log('before callilng here..')
+
+      // console.log('mint======>', mintData)
+
       await createAndBuyAct({
         ...mintData,
         mint: mint,
-        uri: uri,
+        uri: metadataUrl,
         name: mintData.name,
         symbol: mintData.ticker,
         decimals: 6,
@@ -146,12 +147,12 @@ export const InitialBuyDialog = ({ setIsOpen, configInfo, ...mintData }: DialogP
         configInfo: ToBirthPadConfig(configInfo.key),
         configId: configInfo.key.pubKey,
         slippage: new BN((useBirthpadStore.getState().slippage * 10000).toFixed(0)),
-        migrateType: mintData.migrateType || 'amm',
+        migrateType: mintData.migrateType || 'cpmm',
         shareFeeReceiver: wallet,
         mintKp: mintKp,
         createOnly: false,
         onConfirmed: () => {
-          router.push(`/token?mint=${mint}&fromCreate=true${referrerQuery}`)
+          router.push(`/birthpad/token?mint=${mint}&fromCreate=true${referrerQuery}`)
         }
       })
       setIsOpen(false)
@@ -195,7 +196,12 @@ export const InitialBuyDialog = ({ setIsOpen, configInfo, ...mintData }: DialogP
       return
     }
     try {
-      const uri = await uploadFile(mintData.file)
+      // const uri =await uploadFile(mintData.file)
+      const { metadataUrl } = await uploadToLighthouse(mintData.file, {
+        name: mintData.name,
+        symbol: mintData.ticker,
+        description: (mintData as any).description ?? ''
+      })
       // const tempMintData = await createRandomMintAct({
       //   ...mintData,
       //   configId: configInfo.key.pubKey,
@@ -204,11 +210,12 @@ export const InitialBuyDialog = ({ setIsOpen, configInfo, ...mintData }: DialogP
 
       const mintKp = Keypair.generate()
       const mint = mintKp.publicKey.toBase58()
+      console.log('mint======>', mintData)
 
       await createAndBuyAct({
         ...mintData,
         mint: mint,
-        uri: uri,
+        uri: metadataUrl,
         name: mintData.name,
         symbol: mintData.ticker,
         decimals: 6,
@@ -217,12 +224,12 @@ export const InitialBuyDialog = ({ setIsOpen, configInfo, ...mintData }: DialogP
         configInfo: ToBirthPadConfig(configInfo.key),
         configId: configInfo.key.pubKey,
         slippage: new BN((useBirthpadStore.getState().slippage * 10000).toFixed(0)),
-        migrateType: mintData.migrateType || 'amm',
+        migrateType: mintData.migrateType || 'cpmm',
         shareFeeReceiver: wallet,
         mintKp: mintKp,
         createOnly: true,
         onConfirmed: () => {
-          router.push(`/token?mint=${mint}&fromCreate=true${referrerQuery}`)
+          router.push(`/birthpad/token?mint=${mint}&fromCreate=true${referrerQuery}`)
         }
       })
 
@@ -264,7 +271,7 @@ export const InitialBuyDialog = ({ setIsOpen, configInfo, ...mintData }: DialogP
       >
         <Flex justifyContent="space-between" alignItems="center">
           <Text fontSize="xl" fontWeight="medium">
-            Will You Initial Buy?
+            Initial Buy
           </Text>
           <ModalCloseButton position="static" />
         </Flex>
@@ -290,10 +297,9 @@ export const InitialBuyDialog = ({ setIsOpen, configInfo, ...mintData }: DialogP
                 min={0}
                 // onChange={(e: React.ChangeEvent<HTMLInputElement>) => {}}
                 onValueChange={(data: { value: string; formattedValue: string }) => {
-                  const value = data.value || ''
-                  setAmount(value)
-                  amountRef.current = value
-                  setOutAmount(handleAmountChange?.(value) ?? '')
+                  setAmount(data.value)
+                  amountRef.current = data.value
+                  setOutAmount(handleAmountChange?.(data.value) ?? '')
                 }}
                 decimalSeparator={detectedSeparator}
                 thousandSeparator={thousandSeparator}
@@ -335,24 +341,24 @@ export const InitialBuyDialog = ({ setIsOpen, configInfo, ...mintData }: DialogP
             width="100%"
             height="3rem"
             lineHeight="24px"
-            isDisabled={isCreateLoading || !amount || (amount ? new Decimal(amount).lte(0) : false)}
+            isDisabled={isCreateLoading || !amount || new Decimal(amount || 0).lte(0)}
             isLoading={isLoading}
             loadingText="Buying..."
             onClick={handleClickBuy}
           >
-            Create & Buy
+            Buy
           </Button>
           <Button
             width="100%"
             height="3rem"
-            variant="outline"
+            variant="ghost"
             lineHeight="24px"
             isDisabled={isLoading}
             isLoading={isCreateLoading}
             loadingText="Creating..."
             onClick={handleClickInitOnly}
           >
-            Just Create
+            Don&apos;t buy, just create token
           </Button>
         </ModalFooter>
       </ModalContent>

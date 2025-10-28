@@ -118,6 +118,8 @@ const TokenDetail = () => {
 
   useEffect(() => {
     if (!needCheckMint) return
+    console.log('Checking mint status...')
+    console.log('mintInfo:', mintInfo)
     let count = 0
     const interval = window.setInterval(() => {
       mutate()

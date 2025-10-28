@@ -1,5 +1,5 @@
 import { Box, Button, CircularProgress, Flex, Text, useColorMode } from '@chakra-ui/react'
-import { ApiV3Token, Curve } from '@raydium-io/raydium-sdk-v2'
+import { ApiV3Token, Curve, LaunchpadPoolInitParam } from '@raydium-io/raydium-sdk-v2'
 import { NATIVE_MINT, TOKEN_PROGRAM_ID } from '@solana/spl-token'
 import { useWallet } from '@solana/wallet-adapter-react'
 import { Keypair } from '@solana/web3.js'
@@ -17,6 +17,7 @@ import TokenAvatar from '@/components/TokenAvatar'
 import { DEFAULT_SOL_RESERVER } from '@/components/TokenInput'
 import { useSwapStore } from '@/features/Swap/useSwapStore'
 import useCheckToken from '@/hooks/birthpad/useCheckToken'
+import { usePlatformInfo } from '@/hooks/birthpad/usePlatformInfo'
 import { LaunchpadConfigInfo, LaunchpadPoolInfo } from '@/hooks/birthpad/usePoolRpcInfo'
 import { ToBirthPadConfig } from '@/hooks/birthpad/utils'
 import { ApiSwapV1OutSuccess } from '@/hooks/swap/type'
@@ -63,6 +64,7 @@ export default function TradeBox({
     shallow
   )
   const { wallet, shareFeeRate } = useBirthPadShareInfo()
+  const platformInfo = usePlatformInfo({ platformId: LaunchpadPoolInitParam.platformId })
   const swapTokenAct = useSwapStore((s) => s.swapTokenAct)
   const { colorMode } = useColorMode()
   const isLight = colorMode === 'light'
@@ -162,7 +164,7 @@ export default function TradeBox({
         platformFeeRate: new BN(mintInfo?.platformInfo.feeRate ?? 0),
         curveType: configInfo.curveType,
         shareFeeRate,
-        creatorFeeRate: new BN(0), // Provide actual value if available
+        creatorFeeRate: platformInfo?.creatorFeeRate ?? new BN(0), // Provide actual value if available
         transferFeeConfigA: undefined, // Provide actual value if available
         slot: 0 // Provide actual value if available
       })
@@ -186,7 +188,7 @@ export default function TradeBox({
       platformFeeRate: new BN(mintInfo?.platformInfo.feeRate ?? 0),
       curveType: configInfo.curveType,
       shareFeeRate,
-      creatorFeeRate: new BN(0), // Provide actual value if available
+      creatorFeeRate: platformInfo?.creatorFeeRate ?? new BN(0), // Provide actual value if available
       transferFeeConfigA: undefined, // Provide actual value if available
       slot: 0 // Provide actual value if available
     })

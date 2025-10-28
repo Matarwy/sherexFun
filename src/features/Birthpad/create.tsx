@@ -464,7 +464,7 @@ const JustSendIt = () => {
                   isChecked={isPostMigrationFeeShare}
                   onChange={() => {
                     setIsPostMigrationFeeShare(!isPostMigrationFeeShare)
-                    setMigrateType(isPostMigrationFeeShare ? 'amm' : 'cpmm')
+                    setMigrateType(isPostMigrationFeeShare ? 'cpmm' : 'amm')
                   }}
                   _checked={{
                     '.chakra-switch__track': {
@@ -1607,7 +1607,7 @@ const BirthPadForm = () => {
                       isChecked={isPostMigrationFeeShare}
                       onChange={() => {
                         setIsPostMigrationFeeShare(!isPostMigrationFeeShare)
-                        setMigrateType(isPostMigrationFeeShare ? 'amm' : 'cpmm')
+                        setMigrateType(isPostMigrationFeeShare ? 'cpmm' : 'amm')
                       }}
                       _checked={{
                         '.chakra-switch__track': {
