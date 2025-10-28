@@ -55,7 +55,6 @@
     "@lighthouse-web3/sdk": "^0.4.3",
     "@metaplex-foundation/js": "^0.20.1",
     "@metaplex-foundation/umi": "^1.4.1",
-    "@metaplex-foundation/umi-uploader-irys": "^1.4.1",
     "@moongate/moongate-adapter": "^0.6.1",
     "@moongate/solana-wallet-sdk": "3.2.9",
     "@moonpay/moonpay-js": "^0.6.1",
