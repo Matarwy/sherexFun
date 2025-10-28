@@ -108,6 +108,12 @@ const SORT_ITEMS = [
   }
 ]
 
+function setRef<T>(ref: React.Ref<T> | undefined, value: T | null) {
+  if (!ref) return
+  if (typeof ref === 'function') ref(value)
+  else (ref as React.MutableRefObject<T | null>).current = value
+}
+
 export default function Pools() {
   const { t, i18n } = useTranslation()
   const query = useRouteQuery()
@@ -330,6 +336,18 @@ export default function Pools() {
   const { isOpen: isCollapseOpen, onToggle: toggleSubcontrollers } = useDisclosure()
 
   const [tvl, volume] = infoData ? [infoData.tvl, infoData.volume24] : ['0', '0']
+
+  const listLocalRef = useRef<HTMLDivElement | null>(null)
+
+  const mergedRef = useCallback(
+    (el: HTMLDivElement | null) => {
+      // forward to the ref from scrollBodyProps
+      setRef<HTMLDivElement>(scrollBodyProps.ref as React.Ref<HTMLDivElement>, el)
+      // also keep your own local ref if you need it
+      listLocalRef.current = el
+    },
+    [scrollBodyProps.ref]
+  )
 
   const renderPoolListItem = useCallback(
     (info: FormattedPoolInfoItem, idx: number) => (
@@ -573,21 +591,7 @@ export default function Pools() {
             ) : (
               <List
                 // Merge refs to avoid duplicate ref assignment and type errors
-                ref={useCallback(
-                  (el: HTMLDivElement | null) => {
-                    if (el && typeof scrollBodyProps.ref === 'function') {
-                      scrollBodyProps.ref(el as HTMLElement)
-                    } else if (el && scrollBodyProps.ref && 'current' in scrollBodyProps.ref) {
-                      // @ts-ignore
-                      scrollBodyProps.ref.current = el
-                    }
-                    if (listControllerRef && typeof listControllerRef.current === 'object') {
-                      // @ts-ignore
-                      listControllerRef.current = el
-                    }
-                  },
-                  [scrollBodyProps.ref]
-                )}
+                ref={mergedRef}
                 {...Object.fromEntries(Object.entries(scrollBodyProps).filter(([key]) => key !== 'ref'))}
                 increaseRenderCount={showFarms ? 100 : 50}
                 initRenderCount={30}
