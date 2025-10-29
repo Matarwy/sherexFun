@@ -1,0 +1,27 @@
+{
+	"appId": "fun.sherex.mobile",
+	"appName": "Sherex Fun",
+	"webDir": "dist",
+	"server": {
+		"url": "https://sherex.fun",
+		"cleartext": false,
+		"allowNavigation": [
+			"*.sherex.fun",
+			"*.jup.ag",
+			"*.helius.xyz",
+			"*.phantom.app",
+			"*.backpack.app",
+			"*.solflare.com",
+			"*.okx.com",
+			"*.raydium.io",
+			"*.solana.com"
+		]
+	},
+	"android": {
+		"allowMixedContent": false,
+		"backgroundColor": "#f58c06"
+	},
+	"ios": {
+		"limitsNavigationsToAppBoundDomains": true
+	}
+}

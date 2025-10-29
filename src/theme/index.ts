@@ -1,5 +1,6 @@
 // src/theme/index.ts
 import { extendTheme, ThemeConfig } from '@chakra-ui/react'
+import { m } from '@raydium-io/raydium-sdk-v2/lib/raydium-6fecdc52'
 
 import { Alert } from './components/Alert'
 import { Avatar } from './components/Avatar'
@@ -62,13 +63,16 @@ export const theme = extendTheme({
 
         // app base
         'html, body, #__next': {
-          height: '100%'
+          height: '100%',
+          paddingTop: 'env(safe-area-inset-top)',
+          paddingBottom: 'env(safe-area-inset-bottom)'
         },
         body: {
           background: colors.backgroundApp,
           color: colors.textPrimary,
           WebkitFontSmoothing: 'antialiased',
-          MozOsxFontSmoothing: 'grayscale'
+          MozOsxFontSmoothing: 'grayscale',
+          margin: 0
         },
 
         // nicer scrollbars (respects palette)
@@ -83,7 +87,8 @@ export const theme = extendTheme({
 
         // default border color fallback
         '*': {
-          borderColor: colors.dividerBg
+          borderColor: colors.dividerBg,
+          boxSizing: 'border-box'
         }
       }
     }

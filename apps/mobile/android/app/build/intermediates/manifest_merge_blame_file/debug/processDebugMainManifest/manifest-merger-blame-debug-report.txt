@@ -1,0 +1,174 @@
+1<?xml version="1.0" encoding="utf-8"?>
+2<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+3    package="fun.sherex.mobile"
+4    android:versionCode="1"
+5    android:versionName="1.0" >
+6
+7    <uses-sdk
+8        android:minSdkVersion="23"
+9        android:targetSdkVersion="35" />
+10
+11    <!-- Permissions -->
+12
+13    <uses-permission android:name="android.permission.INTERNET" />
+13-->/home/matarwy/repos/sherex-fun-ui/apps/mobile/android/app/src/main/AndroidManifest.xml:43:5-67
+13-->/home/matarwy/repos/sherex-fun-ui/apps/mobile/android/app/src/main/AndroidManifest.xml:43:22-64
+14
+15    <permission
+15-->[androidx.core:core:1.15.0] /home/matarwy/.gradle/caches/8.11.1/transforms/5f51ed623ec66baebfa6a053fe8a8b2a/transformed/core-1.15.0/AndroidManifest.xml:22:5-24:47
+16        android:name="fun.sherex.mobile.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION"
+16-->[androidx.core:core:1.15.0] /home/matarwy/.gradle/caches/8.11.1/transforms/5f51ed623ec66baebfa6a053fe8a8b2a/transformed/core-1.15.0/AndroidManifest.xml:23:9-81
+17        android:protectionLevel="signature" />
+17-->[androidx.core:core:1.15.0] /home/matarwy/.gradle/caches/8.11.1/transforms/5f51ed623ec66baebfa6a053fe8a8b2a/transformed/core-1.15.0/AndroidManifest.xml:24:9-44
+18
+19    <uses-permission android:name="fun.sherex.mobile.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION" />
+19-->[androidx.core:core:1.15.0] /home/matarwy/.gradle/caches/8.11.1/transforms/5f51ed623ec66baebfa6a053fe8a8b2a/transformed/core-1.15.0/AndroidManifest.xml:26:5-97
+19-->[androidx.core:core:1.15.0] /home/matarwy/.gradle/caches/8.11.1/transforms/5f51ed623ec66baebfa6a053fe8a8b2a/transformed/core-1.15.0/AndroidManifest.xml:26:22-94
+20
+21    <application
+21-->/home/matarwy/repos/sherex-fun-ui/apps/mobile/android/app/src/main/AndroidManifest.xml:3:5-39:19
+22        android:allowBackup="true"
+22-->/home/matarwy/repos/sherex-fun-ui/apps/mobile/android/app/src/main/AndroidManifest.xml:4:9-35
+23        android:appComponentFactory="androidx.core.app.CoreComponentFactory"
+23-->[androidx.core:core:1.15.0] /home/matarwy/.gradle/caches/8.11.1/transforms/5f51ed623ec66baebfa6a053fe8a8b2a/transformed/core-1.15.0/AndroidManifest.xml:28:18-86
+24        android:debuggable="true"
+25        android:extractNativeLibs="false"
+26        android:icon="@mipmap/ic_launcher"
+26-->/home/matarwy/repos/sherex-fun-ui/apps/mobile/android/app/src/main/AndroidManifest.xml:5:9-43
+27        android:label="@string/app_name"
+27-->/home/matarwy/repos/sherex-fun-ui/apps/mobile/android/app/src/main/AndroidManifest.xml:6:9-41
+28        android:roundIcon="@mipmap/ic_launcher_round"
+28-->/home/matarwy/repos/sherex-fun-ui/apps/mobile/android/app/src/main/AndroidManifest.xml:7:9-54
+29        android:supportsRtl="true"
+29-->/home/matarwy/repos/sherex-fun-ui/apps/mobile/android/app/src/main/AndroidManifest.xml:8:9-35
+30        android:theme="@style/AppTheme" >
+30-->/home/matarwy/repos/sherex-fun-ui/apps/mobile/android/app/src/main/AndroidManifest.xml:9:9-40
+31        <activity
+31-->/home/matarwy/repos/sherex-fun-ui/apps/mobile/android/app/src/main/AndroidManifest.xml:10:9-30:20
+32            android:name="fun.sherex.mobile.MainActivity"
+32-->/home/matarwy/repos/sherex-fun-ui/apps/mobile/android/app/src/main/AndroidManifest.xml:12:13-41
+33            android:configChanges="orientation|keyboardHidden|keyboard|screenSize|locale|smallestScreenSize|screenLayout|uiMode|navigation"
+33-->/home/matarwy/repos/sherex-fun-ui/apps/mobile/android/app/src/main/AndroidManifest.xml:11:13-140
+34            android:exported="true"
+34-->/home/matarwy/repos/sherex-fun-ui/apps/mobile/android/app/src/main/AndroidManifest.xml:16:13-36
+35            android:label="@string/title_activity_main"
+35-->/home/matarwy/repos/sherex-fun-ui/apps/mobile/android/app/src/main/AndroidManifest.xml:13:13-56
+36            android:launchMode="singleTask"
+36-->/home/matarwy/repos/sherex-fun-ui/apps/mobile/android/app/src/main/AndroidManifest.xml:15:13-44
+37            android:theme="@style/AppTheme.NoActionBarLaunch" >
+37-->/home/matarwy/repos/sherex-fun-ui/apps/mobile/android/app/src/main/AndroidManifest.xml:14:13-62
+38            <intent-filter>
+38-->/home/matarwy/repos/sherex-fun-ui/apps/mobile/android/app/src/main/AndroidManifest.xml:18:13-21:29
+39                <action android:name="android.intent.action.MAIN" />
+39-->/home/matarwy/repos/sherex-fun-ui/apps/mobile/android/app/src/main/AndroidManifest.xml:19:17-69
+39-->/home/matarwy/repos/sherex-fun-ui/apps/mobile/android/app/src/main/AndroidManifest.xml:19:25-66
+40
+41                <category android:name="android.intent.category.LAUNCHER" />
+41-->/home/matarwy/repos/sherex-fun-ui/apps/mobile/android/app/src/main/AndroidManifest.xml:20:17-77
+41-->/home/matarwy/repos/sherex-fun-ui/apps/mobile/android/app/src/main/AndroidManifest.xml:20:27-74
+42            </intent-filter>
+43
+44            <!-- existing deep link filter can stay below -->
+45            <intent-filter>
+45-->/home/matarwy/repos/sherex-fun-ui/apps/mobile/android/app/src/main/AndroidManifest.xml:24:13-29:29
+46                <action android:name="android.intent.action.VIEW" />
+46-->/home/matarwy/repos/sherex-fun-ui/apps/mobile/android/app/src/main/AndroidManifest.xml:25:17-69
+46-->/home/matarwy/repos/sherex-fun-ui/apps/mobile/android/app/src/main/AndroidManifest.xml:25:25-66
+47
+48                <category android:name="android.intent.category.DEFAULT" />
+48-->/home/matarwy/repos/sherex-fun-ui/apps/mobile/android/app/src/main/AndroidManifest.xml:26:17-76
+48-->/home/matarwy/repos/sherex-fun-ui/apps/mobile/android/app/src/main/AndroidManifest.xml:26:27-73
+49                <category android:name="android.intent.category.BROWSABLE" />
+49-->/home/matarwy/repos/sherex-fun-ui/apps/mobile/android/app/src/main/AndroidManifest.xml:27:17-78
+49-->/home/matarwy/repos/sherex-fun-ui/apps/mobile/android/app/src/main/AndroidManifest.xml:27:27-75
+50
+51                <data android:scheme="sherexfun" />
+51-->/home/matarwy/repos/sherex-fun-ui/apps/mobile/android/app/src/main/AndroidManifest.xml:28:17-52
+51-->/home/matarwy/repos/sherex-fun-ui/apps/mobile/android/app/src/main/AndroidManifest.xml:28:23-49
+52            </intent-filter>
+53        </activity>
+54
+55        <provider
+56            android:name="androidx.core.content.FileProvider"
+56-->/home/matarwy/repos/sherex-fun-ui/apps/mobile/android/app/src/main/AndroidManifest.xml:33:13-62
+57            android:authorities="fun.sherex.mobile.fileprovider"
+57-->/home/matarwy/repos/sherex-fun-ui/apps/mobile/android/app/src/main/AndroidManifest.xml:34:13-64
+58            android:exported="false"
+58-->/home/matarwy/repos/sherex-fun-ui/apps/mobile/android/app/src/main/AndroidManifest.xml:35:13-37
+59            android:grantUriPermissions="true" >
+59-->/home/matarwy/repos/sherex-fun-ui/apps/mobile/android/app/src/main/AndroidManifest.xml:36:13-47
+60            <meta-data
+60-->/home/matarwy/repos/sherex-fun-ui/apps/mobile/android/app/src/main/AndroidManifest.xml:37:13-112
+61                android:name="android.support.FILE_PROVIDER_PATHS"
+61-->/home/matarwy/repos/sherex-fun-ui/apps/mobile/android/app/src/main/AndroidManifest.xml:37:24-74
+62                android:resource="@xml/file_paths" />
+62-->/home/matarwy/repos/sherex-fun-ui/apps/mobile/android/app/src/main/AndroidManifest.xml:37:75-109
+63        </provider>
+64        <provider
+64-->[androidx.emoji2:emoji2:1.3.0] /home/matarwy/.gradle/caches/8.11.1/transforms/455628e39230ce08b70f281b4ac99c3c/transformed/emoji2-1.3.0/AndroidManifest.xml:24:9-32:20
+65            android:name="androidx.startup.InitializationProvider"
+65-->[androidx.emoji2:emoji2:1.3.0] /home/matarwy/.gradle/caches/8.11.1/transforms/455628e39230ce08b70f281b4ac99c3c/transformed/emoji2-1.3.0/AndroidManifest.xml:25:13-67
+66            android:authorities="fun.sherex.mobile.androidx-startup"
+66-->[androidx.emoji2:emoji2:1.3.0] /home/matarwy/.gradle/caches/8.11.1/transforms/455628e39230ce08b70f281b4ac99c3c/transformed/emoji2-1.3.0/AndroidManifest.xml:26:13-68
+67            android:exported="false" >
+67-->[androidx.emoji2:emoji2:1.3.0] /home/matarwy/.gradle/caches/8.11.1/transforms/455628e39230ce08b70f281b4ac99c3c/transformed/emoji2-1.3.0/AndroidManifest.xml:27:13-37
+68            <meta-data
+68-->[androidx.emoji2:emoji2:1.3.0] /home/matarwy/.gradle/caches/8.11.1/transforms/455628e39230ce08b70f281b4ac99c3c/transformed/emoji2-1.3.0/AndroidManifest.xml:29:13-31:52
+69                android:name="androidx.emoji2.text.EmojiCompatInitializer"
+69-->[androidx.emoji2:emoji2:1.3.0] /home/matarwy/.gradle/caches/8.11.1/transforms/455628e39230ce08b70f281b4ac99c3c/transformed/emoji2-1.3.0/AndroidManifest.xml:30:17-75
+70                android:value="androidx.startup" />
+70-->[androidx.emoji2:emoji2:1.3.0] /home/matarwy/.gradle/caches/8.11.1/transforms/455628e39230ce08b70f281b4ac99c3c/transformed/emoji2-1.3.0/AndroidManifest.xml:31:17-49
+71            <meta-data
+71-->[androidx.lifecycle:lifecycle-process:2.6.2] /home/matarwy/.gradle/caches/8.11.1/transforms/2086035d7e747a32c2be40e6ed7f404e/transformed/lifecycle-process-2.6.2/AndroidManifest.xml:29:13-31:52
+72                android:name="androidx.lifecycle.ProcessLifecycleInitializer"
+72-->[androidx.lifecycle:lifecycle-process:2.6.2] /home/matarwy/.gradle/caches/8.11.1/transforms/2086035d7e747a32c2be40e6ed7f404e/transformed/lifecycle-process-2.6.2/AndroidManifest.xml:30:17-78
+73                android:value="androidx.startup" />
+73-->[androidx.lifecycle:lifecycle-process:2.6.2] /home/matarwy/.gradle/caches/8.11.1/transforms/2086035d7e747a32c2be40e6ed7f404e/transformed/lifecycle-process-2.6.2/AndroidManifest.xml:31:17-49
+74            <meta-data
+74-->[androidx.profileinstaller:profileinstaller:1.3.1] /home/matarwy/.gradle/caches/8.11.1/transforms/0f3d68271fd414f74f11a6a9c308b287/transformed/profileinstaller-1.3.1/AndroidManifest.xml:29:13-31:52
+75                android:name="androidx.profileinstaller.ProfileInstallerInitializer"
+75-->[androidx.profileinstaller:profileinstaller:1.3.1] /home/matarwy/.gradle/caches/8.11.1/transforms/0f3d68271fd414f74f11a6a9c308b287/transformed/profileinstaller-1.3.1/AndroidManifest.xml:30:17-85
+76                android:value="androidx.startup" />
+76-->[androidx.profileinstaller:profileinstaller:1.3.1] /home/matarwy/.gradle/caches/8.11.1/transforms/0f3d68271fd414f74f11a6a9c308b287/transformed/profileinstaller-1.3.1/AndroidManifest.xml:31:17-49
+77        </provider>
+78
+79        <receiver
+79-->[androidx.profileinstaller:profileinstaller:1.3.1] /home/matarwy/.gradle/caches/8.11.1/transforms/0f3d68271fd414f74f11a6a9c308b287/transformed/profileinstaller-1.3.1/AndroidManifest.xml:34:9-52:20
+80            android:name="androidx.profileinstaller.ProfileInstallReceiver"
+80-->[androidx.profileinstaller:profileinstaller:1.3.1] /home/matarwy/.gradle/caches/8.11.1/transforms/0f3d68271fd414f74f11a6a9c308b287/transformed/profileinstaller-1.3.1/AndroidManifest.xml:35:13-76
+81            android:directBootAware="false"
+81-->[androidx.profileinstaller:profileinstaller:1.3.1] /home/matarwy/.gradle/caches/8.11.1/transforms/0f3d68271fd414f74f11a6a9c308b287/transformed/profileinstaller-1.3.1/AndroidManifest.xml:36:13-44
+82            android:enabled="true"
+82-->[androidx.profileinstaller:profileinstaller:1.3.1] /home/matarwy/.gradle/caches/8.11.1/transforms/0f3d68271fd414f74f11a6a9c308b287/transformed/profileinstaller-1.3.1/AndroidManifest.xml:37:13-35
+83            android:exported="true"
+83-->[androidx.profileinstaller:profileinstaller:1.3.1] /home/matarwy/.gradle/caches/8.11.1/transforms/0f3d68271fd414f74f11a6a9c308b287/transformed/profileinstaller-1.3.1/AndroidManifest.xml:38:13-36
+84            android:permission="android.permission.DUMP" >
+84-->[androidx.profileinstaller:profileinstaller:1.3.1] /home/matarwy/.gradle/caches/8.11.1/transforms/0f3d68271fd414f74f11a6a9c308b287/transformed/profileinstaller-1.3.1/AndroidManifest.xml:39:13-57
+85            <intent-filter>
+85-->[androidx.profileinstaller:profileinstaller:1.3.1] /home/matarwy/.gradle/caches/8.11.1/transforms/0f3d68271fd414f74f11a6a9c308b287/transformed/profileinstaller-1.3.1/AndroidManifest.xml:40:13-42:29
+86                <action android:name="androidx.profileinstaller.action.INSTALL_PROFILE" />
+86-->[androidx.profileinstaller:profileinstaller:1.3.1] /home/matarwy/.gradle/caches/8.11.1/transforms/0f3d68271fd414f74f11a6a9c308b287/transformed/profileinstaller-1.3.1/AndroidManifest.xml:41:17-91
+86-->[androidx.profileinstaller:profileinstaller:1.3.1] /home/matarwy/.gradle/caches/8.11.1/transforms/0f3d68271fd414f74f11a6a9c308b287/transformed/profileinstaller-1.3.1/AndroidManifest.xml:41:25-88
+87            </intent-filter>
+88            <intent-filter>
+88-->[androidx.profileinstaller:profileinstaller:1.3.1] /home/matarwy/.gradle/caches/8.11.1/transforms/0f3d68271fd414f74f11a6a9c308b287/transformed/profileinstaller-1.3.1/AndroidManifest.xml:43:13-45:29
+89                <action android:name="androidx.profileinstaller.action.SKIP_FILE" />
+89-->[androidx.profileinstaller:profileinstaller:1.3.1] /home/matarwy/.gradle/caches/8.11.1/transforms/0f3d68271fd414f74f11a6a9c308b287/transformed/profileinstaller-1.3.1/AndroidManifest.xml:44:17-85
+89-->[androidx.profileinstaller:profileinstaller:1.3.1] /home/matarwy/.gradle/caches/8.11.1/transforms/0f3d68271fd414f74f11a6a9c308b287/transformed/profileinstaller-1.3.1/AndroidManifest.xml:44:25-82
+90            </intent-filter>
+91            <intent-filter>
+91-->[androidx.profileinstaller:profileinstaller:1.3.1] /home/matarwy/.gradle/caches/8.11.1/transforms/0f3d68271fd414f74f11a6a9c308b287/transformed/profileinstaller-1.3.1/AndroidManifest.xml:46:13-48:29
+92                <action android:name="androidx.profileinstaller.action.SAVE_PROFILE" />
+92-->[androidx.profileinstaller:profileinstaller:1.3.1] /home/matarwy/.gradle/caches/8.11.1/transforms/0f3d68271fd414f74f11a6a9c308b287/transformed/profileinstaller-1.3.1/AndroidManifest.xml:47:17-88
+92-->[androidx.profileinstaller:profileinstaller:1.3.1] /home/matarwy/.gradle/caches/8.11.1/transforms/0f3d68271fd414f74f11a6a9c308b287/transformed/profileinstaller-1.3.1/AndroidManifest.xml:47:25-85
+93            </intent-filter>
+94            <intent-filter>
+94-->[androidx.profileinstaller:profileinstaller:1.3.1] /home/matarwy/.gradle/caches/8.11.1/transforms/0f3d68271fd414f74f11a6a9c308b287/transformed/profileinstaller-1.3.1/AndroidManifest.xml:49:13-51:29
+95                <action android:name="androidx.profileinstaller.action.BENCHMARK_OPERATION" />
+95-->[androidx.profileinstaller:profileinstaller:1.3.1] /home/matarwy/.gradle/caches/8.11.1/transforms/0f3d68271fd414f74f11a6a9c308b287/transformed/profileinstaller-1.3.1/AndroidManifest.xml:50:17-95
+95-->[androidx.profileinstaller:profileinstaller:1.3.1] /home/matarwy/.gradle/caches/8.11.1/transforms/0f3d68271fd414f74f11a6a9c308b287/transformed/profileinstaller-1.3.1/AndroidManifest.xml:50:25-92
+96            </intent-filter>
+97        </receiver>
+98    </application>
+99
+100</manifest>
