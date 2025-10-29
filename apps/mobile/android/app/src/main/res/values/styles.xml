@@ -17,6 +17,15 @@
 
 
     <style name="AppTheme.NoActionBarLaunch" parent="Theme.SplashScreen">
-        <item name="android:background">@drawable/splash</item>
+        <!-- Splash background -->
+        <item name="android:windowSplashScreenBackground">@drawable/splash</item>
+
+        <!-- Make system bars match your dark brand -->
+        <item name="android:statusBarColor">#f58c06</item>
+        <item name="android:navigationBarColor">#f58c06</item>
+
+        <!-- Optional: control bar icon brightness -->
+        <item name="android:windowLightStatusBar">false</item>
+        <item name="android:windowLightNavigationBar">false</item>
     </style>
 </resources>
